@@ -1,6 +1,6 @@
 import 'package:MoonGoAdmin/bloc_patterns/simple_bloc_observer.dart';
 import 'package:MoonGoAdmin/generated/l10n.dart';
-import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/global/router_manager.dart' as Nav;
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/services/locator.dart';
 import 'package:MoonGoAdmin/services/navigation_service.dart';
@@ -75,8 +75,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         // GlobalWidgetsLocalizations.delegate
       ],
       supportedLocales: G.delegate.supportedLocales,
-      onGenerateRoute: Router.generateRoute,
-      initialRoute: RouteName.splash,
+      onGenerateRoute: Nav.Router.generateRoute,
+      initialRoute: Nav.RouteName.splash,
       navigatorKey: locator<NavigationService>().navigatorKey,
     ));
   }
