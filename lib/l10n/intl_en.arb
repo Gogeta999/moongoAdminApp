@@ -1,0 +1,11 @@
+{
+    "autoWithSystem": "Follow System",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "english": "English",
+    "forceLoginTitle": "Please Login First",
+    "forceLoginContent": "You need to login to continue",
+    "forceUpdateTitle": "Update Your App Version",
+    "forceUpdateContent": "You need to update app version",
+    "splashSkip": "Skip"
+}

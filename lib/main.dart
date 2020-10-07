@@ -1,67 +1,83 @@
+import 'package:MoonGoAdmin/bloc_patterns/simple_bloc_observer.dart';
+import 'package:MoonGoAdmin/generated/l10n.dart';
+import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/services/locator.dart';
+import 'package:MoonGoAdmin/services/navigation_service.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:oktoast/oktoast.dart';
 
-void main() {
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await StorageManager.init();
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+  _MyAppState createState() => _MyAppState();
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('$state');
+    if (state == AppLifecycleState.inactive) {
+      StorageManager.sharedPreferences.setBool(isUserOnForeground, false);
+      print(StorageManager.sharedPreferences.get(isUserOnForeground));
+    }
+    if (state == AppLifecycleState.resumed) {
+      StorageManager.sharedPreferences.setBool(isUserOnForeground, true);
+      print(StorageManager.sharedPreferences.get(isUserOnForeground));
+    }
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _init();
+  }
+
+  @override
+  void dispose() {
+    print('Disposing main app');
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  Future<void> _init() async {
+    Bloc.observer = SimpleBlocObserver();
+    setupLocator();
+    //Banned landscape
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.light));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
-    );
+    return OKToast(
+        child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // theme: themeModel.themeData(),
+      // darkTheme: themeModel.themeData(platformDarkMode: true),
+      // locale: localModel.locale,
+      localizationsDelegates: const [
+        G.delegate,
+        // GlobalCupertinoLocalizations.delegate,
+        // GlobalMaterialLocalizations.delegate,
+        // GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: G.delegate.supportedLocales,
+      onGenerateRoute: Router.generateRoute,
+      initialRoute: RouteName.splash,
+      navigatorKey: locator<NavigationService>().navigatorKey,
+    ));
   }
 }
