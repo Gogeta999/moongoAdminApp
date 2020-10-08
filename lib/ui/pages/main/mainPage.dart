@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
+=======
+import 'package:MoonGoAdmin/global/router_manager.dart';
+>>>>>>> 70973c0d9f811fcb3554120aa56de9a421da9c98
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -16,6 +20,12 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         title: Text('Main'),
         backgroundColor: Colors.lightBlue[100],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(context, RouteName.search),
+          )
+        ],
       ),
       body: SafeArea(
         child: ListView(padding: EdgeInsets.all(16), children: [
