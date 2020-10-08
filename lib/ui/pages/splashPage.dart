@@ -1,5 +1,7 @@
 import 'package:MoonGoAdmin/generated/l10n.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +10,7 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
   AnimationController _countdownController;
 
   @override
@@ -83,14 +85,21 @@ class AnimatedCountdown extends AnimatedWidget {
 }
 
 void nextPage(context) {
-  // final hasUser = StorageManager.localStorage.getItem(mUser);
-  var hasUser;
-
-  if (hasUser == null) {
+  // // final hasUser = StorageManager.localStorage.getItem(mUser);
+  // var hasUser;
+  //
+  // if (hasUser == null) {
+  //   Navigator.of(context)
+  //       .pushNamedAndRemoveUntil(RouteName.login, (route) => false);
+  // } else {
+  //   Navigator.of(context)
+  //       .pushNamedAndRemoveUntil(RouteName.main, (route) => false);
+  // }
+  if (StorageManager.sharedPreferences.getString(token) != null) {
     Navigator.of(context)
-        .pushNamedAndRemoveUntil(RouteName.login, (route) => false);
+           .pushNamedAndRemoveUntil(RouteName.main, (route) => false);
   } else {
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(RouteName.main, (route) => false);
+     Navigator.of(context)
+         .pushNamedAndRemoveUntil(RouteName.login, (route) => false);
   }
 }
