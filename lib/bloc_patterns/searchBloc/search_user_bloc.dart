@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
+import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -38,6 +39,7 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
       yield* _mapSearchedToState(currentState, event.query);
     if (event is SearchUserSearchedMore)
       yield* _mapSearchedMoreToState(currentState);
+    if (event is SearchUserSuggestions) yield* _mapSuggestionsToState(event.query);
   }
 
   Stream<SearchUserState> _mapNotSearchingToState() async* {
@@ -80,6 +82,11 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
     }
   }
 
+  Stream<SearchUserState> _mapSuggestionsToState(String like) async* {
+    List<String> suggestions = await MoonGoAdminDB().retrieveSuggestions(like) ?? [];
+    yield SearchUserSuggestionsSuccess(suggestions);
+  }
+
   bool _hasReachedMax(SearchUserState state) =>
       state is SearchUserSearchingSuccess && state.hasReachedMax;
 
@@ -87,12 +94,12 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
     if (_searchHistories.contains(query)) {
       _searchHistories.remove(query);
       _searchHistories.add(query);
-      if (_searchHistories.length > 10) _searchHistories.removeLast();
+      if (_searchHistories.length > 15) _searchHistories.removeLast();
       StorageManager.sharedPreferences
           .setStringList(kSearchHistory, _searchHistories);
     } else {
       _searchHistories.add(query);
-      if (_searchHistories.length > 10) _searchHistories.removeLast();
+      if (_searchHistories.length > 15) _searchHistories.removeLast();
       StorageManager.sharedPreferences
           .setStringList(kSearchHistory, _searchHistories);
     }

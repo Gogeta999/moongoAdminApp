@@ -3,17 +3,18 @@ import 'package:MoonGoAdmin/generated/l10n.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart' as Nav;
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/services/locator.dart';
+import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/services/navigation_service.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:oktoast/oktoast.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageManager.init();
+  await MoonGoAdminDB().init();
   runApp(MyApp());
 }
 
@@ -45,7 +46,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    print('Disposing main app');
+    MoonGoAdminDB().dispose();
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }

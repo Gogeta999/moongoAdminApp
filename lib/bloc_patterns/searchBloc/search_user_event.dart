@@ -22,3 +22,12 @@ class SearchUserSearchedMore extends SearchUserEvent {
   @override
   List<Object> get props => [];
 }
+
+class SearchUserSuggestions extends SearchUserEvent {
+  final String query;
+
+  const SearchUserSuggestions(this.query);
+
+  @override
+  List<Object> get props => [];
+}

@@ -11,3 +11,6 @@ const String kUserCover = 'userCover';
 const String kSearchHistory = 'searchHistory';
 
 const String isUserOnForeground = 'isUserOnForeground';
+
+const String kDataBaseName = 'moongo_admin.db';
+const String kSuggestionTableName = 'MoonGoAdminSuggestion';

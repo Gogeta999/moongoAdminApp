@@ -44,3 +44,17 @@ class SearchUserSearchingSuccess extends SearchUserState {
     return 'SearchUserSearchingSuccess, hasReachedMax - ${this.hasReachedMax}, page - ${this.page}';
   }
 }
+
+class SearchUserSuggestionsSuccess extends SearchUserState {
+  final List<String> suggestions;
+
+  const SearchUserSuggestionsSuccess(this.suggestions);
+
+  @override
+  List<Object> get props => [suggestions];
+
+  @override
+  String toString() {
+    return 'SearchUserSuggestionsSuccess, suggestions count - ${this.suggestions.length}';
+  }
+}

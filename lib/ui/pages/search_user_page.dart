@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:MoonGoAdmin/bloc_patterns/searchBloc/search_user_bloc.dart';
@@ -16,9 +17,9 @@ class SearchUserPage extends StatefulWidget {
 class _SearchUserPageState extends State<SearchUserPage> {
   final TextEditingController _queryController = TextEditingController();
   final SearchUserBloc _searchUserBloc = SearchUserBloc();
-
   final _scrollController = ScrollController();
   final _scrollThreshold = 400.0;
+  Timer _debounce;
 
   @override
   void initState() {
@@ -29,6 +30,9 @@ class _SearchUserPageState extends State<SearchUserPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
+    _queryController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -46,7 +50,13 @@ class _SearchUserPageState extends State<SearchUserPage> {
             autofocus: true,
             placeholder: "Search...",
             clearButtonMode: OverlayVisibilityMode.editing,
-            //onChanged: (query) => updateSearchQuery(query),
+            onChanged: (query) {
+              if (_debounce?.isActive ?? false) _debounce.cancel();
+                _debounce = Timer(const Duration(milliseconds: 500), () {
+                if (query.isEmpty) _searchUserBloc.add(SearchUserNotSearching());
+                else _searchUserBloc.add(SearchUserSuggestions(query));
+              });
+            },
           ),
           actions: [
             IconButton(
@@ -91,6 +101,28 @@ class _SearchUserPageState extends State<SearchUserPage> {
               if (state is SearchUserSearchingFailure) {
                 print(state.error.toString());
                 return Center(child: Text('No User Found'));
+              }
+              if (state is SearchUserSuggestionsSuccess) {
+                if (state.suggestions == null || state.suggestions.isEmpty) {
+                  return Container();
+                }
+                return ListView.builder(
+                  physics: ClampingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    String suggestion = state.suggestions[index];
+                    return ListTile(
+                      leading: Icon(Icons.subdirectory_arrow_right_sharp),
+                      title: Text(suggestion),
+                      onTap: () {
+                        _queryController.text = suggestion;
+                        _queryController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _queryController.text.length));
+                        _search();
+                      },
+                    );
+                  },
+                  itemCount: state.suggestions.length,
+                );
               }
               if (state is SearchUserSearchingSuccess) {
                 return ListView.builder(
