@@ -12,6 +12,8 @@ dependencies:
   
   #DATA
   dio: ^3.0.10
+  #encrypt
+  encrypt: ^4.0.2
   # Bloc Pattern
   flutter_bloc: ^6.0.1
   # RxDart
