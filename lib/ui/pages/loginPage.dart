@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _passwordController,
                   placeholder: 'Enter password',
                   textAlign: TextAlign.center,
+                  obscureText: true,
                 ),
                 _blankSpace(),
                 StreamBuilder<LoginButtonState>(

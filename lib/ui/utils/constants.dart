@@ -8,4 +8,6 @@ const String kUserType = 'userType';
 const String kUserProfile = 'userProfile';
 const String kUserCover = 'userCover';
 
+const String kSearchHistory = 'searchHistory';
+
 const String isUserOnForeground = 'isUserOnForeground';
