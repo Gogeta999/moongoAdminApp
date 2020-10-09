@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:MoonGoAdmin/bloc_patterns/searchBloc/search_user_bloc.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -52,9 +53,11 @@ class _SearchUserPageState extends State<SearchUserPage> {
             clearButtonMode: OverlayVisibilityMode.editing,
             onChanged: (query) {
               if (_debounce?.isActive ?? false) _debounce.cancel();
-                _debounce = Timer(const Duration(milliseconds: 500), () {
-                if (query.isEmpty) _searchUserBloc.add(SearchUserNotSearching());
-                else _searchUserBloc.add(SearchUserSuggestions(query));
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                if (query.isEmpty)
+                  _searchUserBloc.add(SearchUserNotSearching());
+                else
+                  _searchUserBloc.add(SearchUserSuggestions(query));
               });
             },
           ),
@@ -111,7 +114,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                   itemBuilder: (context, index) {
                     String suggestion = state.suggestions[index];
                     return ListTile(
-                      leading: Icon(Icons.subdirectory_arrow_right_sharp),
+                      leading: Icon(Icons.subdirectory_arrow_right),
                       title: Text(suggestion),
                       onTap: () {
                         _queryController.text = suggestion;

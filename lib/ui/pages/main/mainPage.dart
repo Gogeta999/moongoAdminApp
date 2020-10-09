@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
-=======
 import 'package:MoonGoAdmin/global/router_manager.dart';
->>>>>>> 70973c0d9f811fcb3554120aa56de9a421da9c98
+import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
