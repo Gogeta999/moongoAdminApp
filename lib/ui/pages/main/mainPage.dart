@@ -1,4 +1,5 @@
 import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final inputText = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,8 +25,8 @@ class _MainPageState extends State<MainPage> {
           )
         ],
       ),
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: ListView(padding: EdgeInsets.all(16), children: [
           MaterialButton(
             onPressed: () => Navigator.push(
               context,
@@ -32,11 +34,30 @@ class _MainPageState extends State<MainPage> {
             ),
             child: Text("User Detail"),
           ),
+          CupertinoTextField(
+            maxLines: null,
+            minLines: null,
+            expands: true,
+            controller: inputText,
+            placeholder: 'Input Encrypted Code Here',
+            autocorrect: false,
+            textInputAction: TextInputAction.done,
+            onEditingComplete: () {
+              var userId = decrypt(inputText.text);
+              print(userId.substring(9, 12));
+              inputText.text =
+                  'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$userId ';
+              var _id = userId.substring(9, 13);
+              showToast('User ID is: ' '$_id');
+            },
+          ),
+          Padding(padding: EdgeInsets.symmetric(vertical: 15)),
           CupertinoButton(
-            onPressed: () => showToast('0'),
+            onPressed: () => null,
             child: Text("Hola from Main Page"),
           ),
-        ],
+        ]),
+
       ),
     );
   }

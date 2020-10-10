@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:MoonGoAdmin/bloc_patterns/searchBloc/search_user_bloc.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -113,7 +114,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                   itemBuilder: (context, index) {
                     String suggestion = state.suggestions[index];
                     return ListTile(
-                      leading: Icon(Icons.subdirectory_arrow_right_sharp),
+                      leading: Icon(Icons.subdirectory_arrow_right),
                       title: Text(suggestion),
                       onTap: () {
                         _queryController.text = suggestion;
