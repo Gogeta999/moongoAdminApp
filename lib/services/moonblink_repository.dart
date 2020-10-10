@@ -4,6 +4,7 @@ import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
+import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:dio/dio.dart';
@@ -21,15 +22,18 @@ class MoonblinkRepository {
     var response = await DioUtils().get(Api.SearchUser,
         queryParameters: {'name': query, 'limit': limit, 'page': page});
     List<String> suggestions = [];
-    List<SearchUserModel> searchUserModels = response.data['data']
-        .map<SearchUserModel>((e) {
-          var searchUserModel = SearchUserModel.fromJson(e);
-          suggestions.add(searchUserModel.name);
+    List<SearchUserModel> searchUserModels =
+        response.data['data'].map<SearchUserModel>((e) {
+      var searchUserModel = SearchUserModel.fromJson(e);
+      suggestions.add(searchUserModel.name);
       return searchUserModel;
-    })
-        .toList();
+    }).toList();
     MoonGoAdminDB().insertSuggestions(suggestions);
     return searchUserModels;
   }
 
+  static Future<User> userdetail(int userid) async {
+    var response = await DioUtils().get(Api.Admindetail + userid.toString());
+    return User.fromJson(response.data);
+  }
 }

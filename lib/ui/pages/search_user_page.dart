@@ -52,9 +52,11 @@ class _SearchUserPageState extends State<SearchUserPage> {
             clearButtonMode: OverlayVisibilityMode.editing,
             onChanged: (query) {
               if (_debounce?.isActive ?? false) _debounce.cancel();
-                _debounce = Timer(const Duration(milliseconds: 500), () {
-                if (query.isEmpty) _searchUserBloc.add(SearchUserNotSearching());
-                else _searchUserBloc.add(SearchUserSuggestions(query));
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                if (query.isEmpty)
+                  _searchUserBloc.add(SearchUserNotSearching());
+                else
+                  _searchUserBloc.add(SearchUserSuggestions(query));
               });
             },
           ),

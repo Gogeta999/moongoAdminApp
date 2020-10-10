@@ -1,4 +1,5 @@
 import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -22,11 +23,20 @@ class _MainPageState extends State<MainPage> {
           )
         ],
       ),
-      body: Center(
-        child: CupertinoButton(
-          onPressed: () => showToast('0'),
-          child: Text("Hola from Main Page"),
-        ),
+      body: Column(
+        children: [
+          MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserDetailPage()),
+            ),
+            child: Text("User Detail"),
+          ),
+          CupertinoButton(
+            onPressed: () => showToast('0'),
+            child: Text("Hola from Main Page"),
+          ),
+        ],
       ),
     );
   }
