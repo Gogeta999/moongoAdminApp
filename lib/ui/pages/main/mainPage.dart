@@ -1,5 +1,6 @@
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
+import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -26,6 +27,13 @@ class _MainPageState extends State<MainPage> {
       ),
       body: SafeArea(
         child: ListView(padding: EdgeInsets.all(16), children: [
+          MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserDetailPage()),
+            ),
+            child: Text("User Detail"),
+          ),
           CupertinoTextField(
             maxLines: null,
             minLines: null,
@@ -49,6 +57,7 @@ class _MainPageState extends State<MainPage> {
             child: Text("Hola from Main Page"),
           ),
         ]),
+
       ),
     );
   }
