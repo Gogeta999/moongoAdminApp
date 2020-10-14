@@ -1,4 +1,5 @@
 import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,9 +31,16 @@ class _MainPageState extends State<MainPage> {
           MaterialButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UserDetailPage()),
+              MaterialPageRoute(builder: (context) => UserDetailPage(id: 1)),
             ),
             child: Text("User Detail"),
+          ),
+          MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserListPage()),
+            ),
+            child: Text("User List"),
           ),
           CupertinoTextField(
             maxLines: null,
@@ -57,7 +65,6 @@ class _MainPageState extends State<MainPage> {
             child: Text("Hola from Main Page"),
           ),
         ]),
-
       ),
     );
   }

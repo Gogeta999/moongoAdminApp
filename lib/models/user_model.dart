@@ -14,7 +14,7 @@ class User {
   Wallet wallet;
   int followercount;
   int followingcount;
-  double rating;
+  int rating;
   Profile profile;
   Coin coin;
 

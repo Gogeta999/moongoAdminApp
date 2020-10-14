@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserDetailPage extends StatefulWidget {
+  final int id;
+  UserDetailPage({@required this.id});
   @override
   _UserDetailPageState createState() => _UserDetailPageState();
 }
@@ -15,7 +17,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   UserDetailBloc userDetailBloc = UserDetailBloc();
   @override
   void initState() {
-    userDetailBloc.add(UserDetailGet());
+    userDetailBloc.add(UserDetailGet(id: widget.id));
     super.initState();
   }
 

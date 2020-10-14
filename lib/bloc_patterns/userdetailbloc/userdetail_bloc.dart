@@ -21,14 +21,13 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     print('Getting User Data');
     // yield UserDetailProgress();
     try {
-      print("G");
-      User user = await MoonblinkRepository.userdetail(1);
-      print(user);
-      print("Success");
+      print(event.id);
+      User user = await MoonblinkRepository.userdetail(event.id);
       yield UserDetailSuccess(user);
     } catch (e) {
       print(e);
       yield UserDetailFail(e);
     }
+    print(state);
   }
 }

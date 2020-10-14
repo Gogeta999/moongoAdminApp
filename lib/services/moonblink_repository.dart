@@ -5,6 +5,7 @@ import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
+import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:dio/dio.dart';
@@ -32,8 +33,22 @@ class MoonblinkRepository {
     return searchUserModels;
   }
 
+  //User Detail
   static Future<User> userdetail(int userid) async {
+    print(userid);
     var response = await DioUtils().get(Api.Admindetail + userid.toString());
     return User.fromJson(response.data);
+  }
+
+  //User List
+  static Future<List<UserList>> userlist(int limit, int page) async {
+    var response = await DioUtils().get(Api.Adminuserlist);
+    List<UserList> userlist = response.data['data'].map<UserList>((e) {
+      var users = UserList.fromJson(e);
+      return users;
+    }).toList();
+    print("List Success");
+    print(userlist.length);
+    return userlist;
   }
 }
