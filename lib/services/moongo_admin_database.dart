@@ -12,9 +12,8 @@ class MoonGoAdminDB {
   final Future<Database> _database = openDatabase(
     kDataBaseName,
     onCreate: (db, version) {
-
       return db.execute(
-        "CREATE TABLE $kSuggestionTableName(name TEXT)",
+        "CREATE TABLE $kSuggestionTableName(id INTEGER PRIMARY KEY, name TEXT)",
       );
     },
     version: 1,
@@ -24,11 +23,14 @@ class MoonGoAdminDB {
     _db = await _database;
   }
 
-  insertSuggestions(List<String> suggestions) async {
-    for (var value in suggestions) {
+  insertSuggestions(List<String> suggestions, List<int> idList) async {
+    for (int i = 0; i < suggestions.length; ++i) {
       _db.insert(
           kSuggestionTableName,
-          {'name': value},
+          {
+            'id': idList[i],
+            'name': suggestions[i]
+          },
           conflictAlgorithm: ConflictAlgorithm.replace
       );
     }

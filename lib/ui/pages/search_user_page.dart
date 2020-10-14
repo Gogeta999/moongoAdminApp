@@ -149,7 +149,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                       leading: CachedNetworkImage(
                         imageUrl: item.profileImage,
                         placeholder: (_, __) => CupertinoActivityIndicator(),
-                        errorWidget: (_, __, ___) => Text('Sorry, Error'),
+                        errorWidget: (_, __, ___) => Icon(Icons.error),
                         imageBuilder: (context, imageProvider) => Container(
                           width: 50.0,
                           height: 50.0,

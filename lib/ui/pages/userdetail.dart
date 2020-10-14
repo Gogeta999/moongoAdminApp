@@ -63,7 +63,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         CachedNetworkImage(
                           imageUrl: state.user.profile.coverimage,
                           placeholder: (_, __) => CupertinoActivityIndicator(),
-                          errorWidget: (_, __, ___) => Text('Sorry, Error'),
+                          errorWidget: (_, __, ___) => Icon(Icons.error),
                           imageBuilder: (context, imageProvider) => Container(
                             width: MediaQuery.of(context).size.width,
                             height: 300,
@@ -80,7 +80,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                               imageUrl: state.user.profile.profileimage,
                               placeholder: (_, __) =>
                                   CupertinoActivityIndicator(),
-                              errorWidget: (_, __, ___) => Text('Sorry, Error'),
+                              errorWidget: (_, __, ___) => Icon(Icons.error),
                               imageBuilder: (context, imageProvider) =>
                                   Container(
                                 width: 150.0,

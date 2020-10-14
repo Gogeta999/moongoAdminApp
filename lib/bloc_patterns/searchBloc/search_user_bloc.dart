@@ -76,7 +76,7 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
             data.length < _initialSearchLimit, query);
       } catch (e) {
         yield SearchUserSearchingSuccess(currentState.data, currentState.page,
-            currentState.hasReachedMax, currentState.query);
+            true, currentState.query);
       }
       _isFetching = false;
     }
