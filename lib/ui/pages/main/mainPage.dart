@@ -28,20 +28,6 @@ class _MainPageState extends State<MainPage> {
       ),
       body: SafeArea(
         child: ListView(padding: EdgeInsets.all(16), children: [
-          MaterialButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserDetailPage(id: 1)),
-            ),
-            child: Text("User Detail"),
-          ),
-          MaterialButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserListPage()),
-            ),
-            child: Text("User List"),
-          ),
           CupertinoTextField(
             maxLines: null,
             minLines: null,
@@ -58,6 +44,20 @@ class _MainPageState extends State<MainPage> {
               var _id = userId.substring(9, 13);
               showToast('User ID is: ' '$_id');
             },
+          ),
+          MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserDetailPage(id: 1)),
+            ),
+            child: Text("User Detail"),
+          ),
+          MaterialButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserListPage()),
+            ),
+            child: Text("User List"),
           ),
           Padding(padding: EdgeInsets.symmetric(vertical: 15)),
           CupertinoButton(
