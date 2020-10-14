@@ -2,6 +2,8 @@ import 'package:MoonGoAdmin/ui/pages/loginPage.dart';
 import 'package:MoonGoAdmin/ui/pages/main/mainPage.dart';
 import 'package:MoonGoAdmin/ui/pages/search_user_page.dart';
 import 'package:MoonGoAdmin/ui/pages/splashPage.dart';
+import 'package:MoonGoAdmin/ui/pages/user_control_page.dart';
+import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:MoonGoAdmin/ui/utils/page_route_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,8 @@ class RouteName {
   static const String main = '/';
   static const String login = 'login';
   static const String search = 'search';
+  static const String userControl = 'userControl';
+  static const String userDetail = 'userDetail';
 }
 
 class Router {
@@ -25,6 +29,10 @@ class Router {
             fullscreenDialog: true, builder: (_) => LoginPage());
       case RouteName.search:
         return CupertinoPageRoute(builder: (_) => SearchUserPage());
+      case RouteName.userControl:
+        return CupertinoPageRoute(builder: (_) => UserControlPage(userId: settings.arguments));
+      case RouteName.userDetail:
+        return CupertinoPageRoute(builder: (_) => UserDetailPage(id: settings.arguments));
       default:
         return CupertinoPageRoute(
             builder: (_) => Scaffold(
