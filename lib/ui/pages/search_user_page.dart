@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:MoonGoAdmin/bloc_patterns/searchBloc/search_user_bloc.dart';
+import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -53,7 +54,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
             clearButtonMode: OverlayVisibilityMode.editing,
             onChanged: (query) {
               if (_debounce?.isActive ?? false) _debounce.cancel();
-              _debounce = Timer(const Duration(milliseconds: 500), () {
+              _debounce = Timer(const Duration(milliseconds: 100), () {
                 if (query.isEmpty)
                   _searchUserBloc.add(SearchUserNotSearching());
                 else
@@ -146,6 +147,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     }
                     SearchUserModel item = state.data[index - 1];
                     return ListTile(
+                      onTap: () => Navigator.pushNamed(context, RouteName.userControl, arguments: item.id),
                       leading: CachedNetworkImage(
                         imageUrl: item.profileImage,
                         placeholder: (_, __) => CupertinoActivityIndicator(),

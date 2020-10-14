@@ -32,6 +32,13 @@ class MoonblinkRepository {
     return searchUserModels;
   }
 
+  static Future updateUserType(int userId, int type) async {
+    var response = await DioUtils().put(Api.UpdateUserType + '/$userId', queryParameters: {
+      'type': type
+    });
+    return response.data;
+  }
+
   //User Detail
   static Future<User> userdetail(int userid) async {
     print(userid);

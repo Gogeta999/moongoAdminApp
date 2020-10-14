@@ -10,6 +10,12 @@ const String kUserCover = 'userCover';
 
 const String kSearchHistory = 'searchHistory';
 
+const int kNormal = 0;
+const int kCoPlayer = 1;
+const int kCele = 2;
+const int kStreamer = 3;
+const int kPro = 4;
+
 const String isUserOnForeground = 'isUserOnForeground';
 
 const String kDataBaseName = 'moongo_admin.db';
