@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
@@ -41,6 +42,7 @@ class UserLoginBloc extends Bloc<UserLoginEvent, UserLoginState> {
           .setString(kUserProfile, _loginModel.profileImage);
       StorageManager.sharedPreferences
           .setString(kUserCover, _loginModel.coverImage);
+      DioUtils().initWithAuthorization();
       yield UserLoginSuccess();
     } catch (e) {
       yield UserLoginFailure(e);
