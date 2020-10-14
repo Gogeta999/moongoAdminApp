@@ -29,6 +29,7 @@ class UserLoginBloc extends Bloc<UserLoginEvent, UserLoginState> {
         'mail': event.mail,
         'password': event.password,
         'fcm_token': event.fcmToken,
+        'token': event.token,
       };
       LoginModel _loginModel = await MoonblinkRepository.login(map);
       StorageManager.sharedPreferences.setString(token, _loginModel.token);
@@ -36,8 +37,10 @@ class UserLoginBloc extends Bloc<UserLoginEvent, UserLoginState> {
       StorageManager.sharedPreferences.setString(kUserName, _loginModel.name);
       StorageManager.sharedPreferences.setString(kUserEmail, _loginModel.email);
       StorageManager.sharedPreferences.setInt(kUserType, _loginModel.type);
-      StorageManager.sharedPreferences.setString(kUserProfile, _loginModel.profileImage);
-      StorageManager.sharedPreferences.setString(kUserCover, _loginModel.coverImage);
+      StorageManager.sharedPreferences
+          .setString(kUserProfile, _loginModel.profileImage);
+      StorageManager.sharedPreferences
+          .setString(kUserCover, _loginModel.coverImage);
       yield UserLoginSuccess();
     } catch (e) {
       yield UserLoginFailure(e);

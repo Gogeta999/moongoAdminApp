@@ -7,6 +7,7 @@ abstract class UserLoginEvent extends Equatable {
 class UserLoginLogin extends UserLoginEvent {
   final String mail;
   final String password;
+  final String token = "";
   final String fcmToken = "";
 
   const UserLoginLogin(this.mail, this.password);
