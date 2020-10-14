@@ -32,7 +32,7 @@ class User {
         wallet = Wallet.fromJson(json['wallet']),
         followercount = json['follower_count'],
         followingcount = json['following_count'],
-        rating = json['rating'],
+        rating = json['rating'].toDouble(),
         profile = Profile.fromJson(json['profile']),
         coin = Coin.fromJson(json['coin']);
 }

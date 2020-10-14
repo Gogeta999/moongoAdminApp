@@ -257,7 +257,7 @@ class DioUtils {
     }
   }
 
-  //delete request
+
   patch(url, {queryParameters, options}) async {
     print('post request path ------$url-------queryParameters$queryParameters');
     Response response;
@@ -301,6 +301,48 @@ class DioUtils {
     }
   }
 
+  put(url, {queryParameters, options}) async {
+    print('post request path ------$url-------queryParameters$queryParameters');
+    Response response;
+    response = await _dio.put(url,
+        queryParameters: queryParameters, options: options);
+    ResponseData respData = ResponseData.fromJson(response.data);
+    if (respData.success) {
+      response.data = respData.data;
+      debugPrint(
+          'api-post--->result----->${response.data}\napiResponseMessgae---->${respData.getMessage}');
+      return response;
+    } else {
+      if (respData.errorCode == 101) {
+        StorageManager.localStorage.deleteItem(mUser);
+        StorageManager.sharedPreferences.remove(token);
+        // StorageManager.sharedPreferences.remove(mLoginName);
+        // StorageManager.sharedPreferences.remove(mUserId);
+        // StorageManager.sharedPreferences.remove(mUserType);
+        // StorageManager.sharedPreferences.remove(mstatus);
+        // StorageManager.sharedPreferences.remove(mUserProfile);
+        // StorageManager.sharedPreferences.remove(mgameprofile);
+        throw forceLoginDialog();
+        // throw ForceLoginDialog();
+      } // Platform and version Control
+      // 102 is version late
+      else if (respData.errorCode == 102 && Platform.isAndroid) {
+        throw forceUpdateAndroidDialog();
+      } else if (respData.errorCode == 102 && Platform.isIOS) {
+        throw forceUpdateAppStoreDialog();
+      }
+      // Request null data when no story
+      else if (respData.errorCode == 123) {
+        response.data = respData.data;
+        // final emptyData = rootBundle.loadString("json/storyEmpty.json").then((value) => jsonDecode(value));
+        debugPrint(
+            'result--from--$url--->${response.data}\nResponseMessgae--from-$url->${respData.getMessage}');
+        return response;
+      } else {
+        throw NotSuccessException.fromRespData(respData);
+      }
+    }
+  }
   /*
    * Post request
    */

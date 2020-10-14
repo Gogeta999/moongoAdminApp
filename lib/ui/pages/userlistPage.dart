@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_bloc.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
+import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -63,11 +64,7 @@ class _UserListPageState extends State<UserListPage> {
                       ),
                     ),
                     title: Text(user.name),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserDetailPage(id: user.id)),
-                    ),
+                    onTap: () => Navigator.pushNamed(context, RouteName.userControl, arguments: state.data[index].id),
                   );
                 },
               );
