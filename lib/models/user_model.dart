@@ -16,6 +16,7 @@ class User {
   int followingcount;
   double rating;
   Profile profile;
+  NRCProfile nrcProfile;
   Coin coin;
 
   User.fromJson(Map<String, dynamic> json)
@@ -34,6 +35,7 @@ class User {
         followingcount = json['following_count'],
         rating = json['rating'].toDouble(),
         profile = Profile.fromJson(json['profile']),
+        nrcProfile = NRCProfile.fromJson(json['profile_image']),
         coin = Coin.fromJson(json['coin']);
 }
 
@@ -64,6 +66,24 @@ class Profile {
         gender = json['gender'],
         nrc = json['nrc'],
         bios = json['bios'],
+        createdat = json['created_at'],
+        updatedat = json['updated_at'];
+}
+
+class NRCProfile {
+  int id;
+  int userId;
+  int profileId;
+  String nrcFront;
+  String nrcBack;
+  String createdat;
+  String updatedat;
+  NRCProfile.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        userId = json['user_id'],
+        profileId = json['profile_id'],
+        nrcFront = json['nrc_front_image'],
+        nrcBack = json['nrc_back_image'],
         createdat = json['created_at'],
         updatedat = json['updated_at'];
 }

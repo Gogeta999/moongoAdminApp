@@ -48,7 +48,7 @@ class _MainPageState extends State<MainPage> {
           MaterialButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UserDetailPage(id: 7)),
+              MaterialPageRoute(builder: (context) => UserDetailPage(id: 6)),
             ),
             child: Text("User Detail"),
           ),

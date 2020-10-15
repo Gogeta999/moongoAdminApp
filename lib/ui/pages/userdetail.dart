@@ -114,6 +114,38 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   tileBox("Rating", state.user.rating.toString()),
                   tileBox("Type", state.user.type.toString()),
                   tileBox("Status", state.user.status.toString()),
+                  Container(
+                    height: 200,
+                    child: CachedNetworkImage(
+                      imageUrl: state.user.nrcProfile.nrcFront,
+                      placeholder: (_, __) => CupertinoActivityIndicator(),
+                      errorWidget: (_, __, ___) => Icon(Icons.error),
+                      imageBuilder: (context, imageProvider) => Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.fill),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 200,
+                    child: CachedNetworkImage(
+                      imageUrl: state.user.nrcProfile.nrcBack,
+                      placeholder: (_, __) => CupertinoActivityIndicator(),
+                      errorWidget: (_, __, ___) => Icon(Icons.error),
+                      imageBuilder: (context, imageProvider) => Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.fill),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               );
             }
