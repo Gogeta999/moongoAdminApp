@@ -69,6 +69,7 @@ class DioUtils {
 
   initWithAuthorization() {
     var usertoken = StorageManager.sharedPreferences.getString(token);
+    // print('Token is : $usertoken');
     if (usertoken != null) {
       _dio.interceptors.clear();
       _dio.interceptors.add(
@@ -257,7 +258,6 @@ class DioUtils {
     }
   }
 
-
   patch(url, {queryParameters, options}) async {
     print('post request path ------$url-------queryParameters$queryParameters');
     Response response;
@@ -304,8 +304,8 @@ class DioUtils {
   put(url, {queryParameters, options}) async {
     print('post request path ------$url-------queryParameters$queryParameters');
     Response response;
-    response = await _dio.put(url,
-        queryParameters: queryParameters, options: options);
+    response =
+        await _dio.put(url, queryParameters: queryParameters, options: options);
     ResponseData respData = ResponseData.fromJson(response.data);
     if (respData.success) {
       response.data = respData.data;
@@ -343,6 +343,7 @@ class DioUtils {
       }
     }
   }
+
   /*
    * Post request
    */

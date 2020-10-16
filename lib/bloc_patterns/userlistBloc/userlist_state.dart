@@ -44,5 +44,6 @@ class UserListSuccess extends UserListState {
   List<Object> get props => [data, hasReachedMax];
 
   @override
-  String toString() => 'UserListSuccess';
+  String toString() =>
+      'BlockedUsersSuccess: ${data.length}, hasReachedMax: $hasReachedMax';
 }

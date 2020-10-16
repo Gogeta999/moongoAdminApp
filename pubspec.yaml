@@ -22,7 +22,7 @@ dependencies:
   equatable: ^1.2.2
   #Base Component
   platform_device_id: ^0.1.1
-  device_info: ^0.4.2+4
+  device_info: ^0.4.2+8
   package_info: ^0.4.1
   url_launcher: ^5.5.0
   oktoast: ^2.3.2
