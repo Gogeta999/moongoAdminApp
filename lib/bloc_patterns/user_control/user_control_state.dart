@@ -40,3 +40,31 @@ class UserControlChangePartnerTypeFailure extends UserControlState {
   @override
   List<Object> get props => [error];
 }
+
+class UserControlTopUpSuccess extends UserControlState {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlTopUpFailure extends UserControlState {
+  final error;
+
+  const UserControlTopUpFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class UserControlWithdrawSuccess extends UserControlState {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlWithdrawFailure extends UserControlState {
+  final error;
+
+  const UserControlWithdrawFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
