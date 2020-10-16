@@ -142,6 +142,8 @@ class Api {
   static const String UserRating = 'moonblink/api/v1/social/rating';
 
   ///Admin Api
+  static const String AdminLogin = 'moonblink/api/v1/admin/login';
+
   static const String SearchUser = 'moonblink/api/v1/admin/users/search';
 
   static const String UpdateUserType = 'moonblink/api/v1/admin/users';

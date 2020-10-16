@@ -154,21 +154,20 @@ class _UserControlPageState extends State<UserControlPage> {
               return Center(child: Text(state.error.toString()));
             }
             if (state is UserControlFetchedSuccess) {
-              return Center(
-                  child: Column(
+              return Column(
                 children: [
-                  _buildPartnerType(state.data.type),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                    child: CupertinoButton(
-                      child: Text('Go To Detail Page'),
-                      onPressed: () => Navigator.pushNamed(context, RouteName.userDetail, arguments: state.data.id),
-                    ),
-                  ),
-                  if (state.data.type != 0)
-                    _buildUpdatePartnerType(state.data.type)
+              _buildPartnerType(state.data.type),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: CupertinoButton(
+                  child: Text('Go To Detail Page'),
+                  onPressed: () => Navigator.pushNamed(context, RouteName.userDetail, arguments: state.data.id),
+                ),
+              ),
+              if (state.data.type != 0)
+                _buildUpdatePartnerType(state.data.type)
                 ],
-              ));
+              );
             }
             return Text('Oops! Something went wrong!');
           },
