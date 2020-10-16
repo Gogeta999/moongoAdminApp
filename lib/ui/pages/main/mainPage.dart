@@ -1,10 +1,14 @@
+import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
+import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:rxdart/rxdart.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -13,6 +17,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final inputText = TextEditingController();
+  BehaviorSubject<bool> _logoutButton = BehaviorSubject.seeded(false);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,8 +70,31 @@ class _MainPageState extends State<MainPage> {
             onPressed: () => null,
             child: Text("Hola from Main Page"),
           ),
+          StreamBuilder<bool>(
+              initialData: false,
+              stream: _logoutButton,
+              builder: (context, snapshot) {
+                if (snapshot.data) {
+                  return CupertinoButton(
+                    onPressed: () {},
+                    child: CupertinoActivityIndicator(),
+                  );
+                }
+                return CupertinoButton(
+                  onPressed: () => _logout(),
+                  child: Text('Log Out'),
+                );
+              }),
         ]),
       ),
     );
+  }
+
+  _logout() async {
+    await StorageManager.sharedPreferences.remove(token);
+    DioUtils().initWithoutAuthorization();
+    _logoutButton.add(false);
+    Navigator.pushNamedAndRemoveUntil(
+        context, RouteName.login, (route) => false);
   }
 }
