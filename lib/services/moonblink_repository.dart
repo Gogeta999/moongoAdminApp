@@ -4,14 +4,15 @@ import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
+import 'package:MoonGoAdmin/models/wallet_model.dart';
 import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:dio/dio.dart';
-
 
 class MoonblinkRepository {
   static Future<LoginModel> login(Map<String, dynamic> data) async {
     FormData formData = FormData.fromMap(data);
-    var response = await DioUtils().postwithData(Api.AdminLogin, data: formData);
+    var response =
+        await DioUtils().postwithData(Api.AdminLogin, data: formData);
     return LoginModel.fromJson(response.data);
   }
 
@@ -33,10 +34,26 @@ class MoonblinkRepository {
   }
 
   static Future updateUserType(int userId, int type) async {
-    var response = await DioUtils().put(Api.UpdateUserType + '/$userId', queryParameters: {
-      'type': type
-    });
+    var response = await DioUtils()
+        .put(Api.UpdateUserType + '/$userId', queryParameters: {'type': type});
     return response.data;
+  }
+
+  ///map with topUp, productId
+  static Future<Wallet> topUpUserCoin(int userId, Map<String, dynamic> map) async {
+    FormData formData = FormData.fromMap(map);
+    var response = await DioUtils().postwithData(
+        Api.UpdateUserCoin + '/$userId/topup',
+        data: formData);
+    return Wallet.fromJson(response.data);
+  }
+
+  static Future<Wallet> withdrawUserCoin(int userId, Map<String, dynamic> map) async {
+    FormData formData = FormData.fromMap(map);
+    var response = await DioUtils().postwithData(
+      Api.UpdateUserCoin + '/$userId/topup',
+      data: formData);
+    return Wallet.fromJson(response.data);
   }
 
   //User Detail

@@ -6,7 +6,7 @@ abstract class UserControlEvent extends Equatable {
 
 class UserControlFetched extends UserControlEvent {
   @override
-  List<Object> get props => throw UnimplementedError();
+  List<Object> get props => [];
 }
 
 class UserControlChangePartnerType extends UserControlEvent {
@@ -16,4 +16,14 @@ class UserControlChangePartnerType extends UserControlEvent {
 
   @override
   List<Object> get props => [type];
+}
+
+class UserControlTopUpCoin extends UserControlEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlWithdrawCoin extends UserControlEvent {
+  @override
+  List<Object> get props => [];
 }
