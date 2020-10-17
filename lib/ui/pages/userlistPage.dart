@@ -93,15 +93,15 @@ class _UserListPageState extends State<UserListPage> {
           title: Text('Main'),
           backgroundColor: Colors.lightBlue[100],
           actions: [
-            RaisedButton(
-              onPressed: () {
-                setState(() {
-                  globalPending = 1;
-                });
-                _onUpdated();
-              },
-              child: Text("Change To Pending List"),
-            ),
+            // RaisedButton(
+            //   onPressed: () {
+            //     setState(() {
+            //       globalPending = '1';
+            //     });
+            //     _onUpdated();
+            //   },
+            //   child: Text("Change To Pending List"),
+            // ),
             Container(
               width: 100,
               color: Colors.white,
@@ -111,7 +111,10 @@ class _UserListPageState extends State<UserListPage> {
                   onChanged: (String newValue) {
                     setState(() {
                       dropdownValue = newValue;
+                      globalFilter = dropdownValue;
                     });
+                    print('GlobalFilter Type : $globalFilter');
+                    _onUpdated();
                   },
                   items: <String>[
                     '',

@@ -37,11 +37,11 @@ class MoonblinkRepository {
   static Future userList(
     int limit,
     int page, {
-    int isPending,
-    int type,
+    String isPending,
+    String type,
   }) async {
     var response = await DioUtils().get(Api.Admin, queryParameters: {
-      'user_type': type,
+      'type': type,
       'limit': limit,
       'page': page,
       'is_pending': isPending

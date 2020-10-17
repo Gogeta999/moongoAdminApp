@@ -141,7 +141,9 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
           limit: transactionLimit,
           page: 1,
           isPending: globalPending,
-          type: filterByType);
+          type: globalFilter);
+      print(
+          'limit: $transactionLimit, ispending: $globalPending,typeis $globalFilter');
     } catch (error) {
       yield UserListFail(error: error);
     }
@@ -159,7 +161,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       state is UserListSuccess && state.hasReachedMax;
 
   Future<List<ListUser>> _fetchUserList(
-      {int isPending, int type, int limit, int page}) async {
+      {String isPending, String type, int limit, int page}) async {
     UsersList usersList = await MoonblinkRepository.userList(limit, page,
         isPending: isPending, type: type);
     return usersList.usersList;

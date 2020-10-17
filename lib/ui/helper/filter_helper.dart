@@ -1,2 +1,2 @@
-int globalPending;
-String globalFilter = '';
+String globalPending;
+String globalFilter;
