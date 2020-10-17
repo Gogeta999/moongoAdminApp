@@ -42,6 +42,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          backgroundColor: Colors.lightBlue[100],
           leading: IconButton(
             icon: Icon(
                 Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios),
@@ -149,7 +150,9 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     }
                     SearchUserModel item = state.data[index - 1];
                     return ListTile(
-                      onTap: () => Navigator.pushNamed(context, RouteName.userControl, arguments: item.id),
+                      onTap: () => Navigator.pushNamed(
+                          context, RouteName.userControl,
+                          arguments: item.id),
                       leading: CachedNetworkImage(
                         imageUrl: item.profileImage,
                         placeholder: (_, __) => CupertinoActivityIndicator(),

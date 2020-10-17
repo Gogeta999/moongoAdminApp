@@ -152,9 +152,8 @@ class _UserControlPageState extends State<UserControlPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue)
-                    ),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue)),
                     child: Column(
                       children: [
                         StreamBuilder<String>(
@@ -181,22 +180,21 @@ class _UserControlPageState extends State<UserControlPage> {
                               );
                             }),
                         StreamBuilder<bool>(
-                          initialData: false,
-                          stream: _userControlBloc.topUpSubject,
-                          builder: (context, snapshot) {
-                            if (snapshot.data) {
+                            initialData: false,
+                            stream: _userControlBloc.topUpSubject,
+                            builder: (context, snapshot) {
+                              if (snapshot.data) {
+                                return CupertinoButton(
+                                  child: CupertinoActivityIndicator(),
+                                  onPressed: () {},
+                                );
+                              }
                               return CupertinoButton(
-                                child: CupertinoActivityIndicator(),
-                                onPressed: () {},
+                                child: Text('TopUp'),
+                                onPressed: () => _userControlBloc
+                                    .add(UserControlTopUpCoin()),
                               );
-                            }
-                            return CupertinoButton(
-                              child: Text('TopUp'),
-                              onPressed: () =>
-                                  _userControlBloc.add(UserControlTopUpCoin()),
-                            );
-                          }
-                        )
+                            })
                       ],
                     ),
                   ),
@@ -206,45 +204,47 @@ class _UserControlPageState extends State<UserControlPage> {
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue)
-                    ),
+                        border: Border.all(color: Colors.blue)),
                     child: Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CupertinoTextField(
-                            controller: _userControlBloc.withdrawAmountController,
+                            controller:
+                                _userControlBloc.withdrawAmountController,
                             clearButtonMode: OverlayVisibilityMode.editing,
                             placeholder: 'Withdraw Amount',
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
-                              if(value.length > 0)
+                              if (value.length > 0)
                                 try {
                                   int intValue = int.parse(value);
-                                  _userControlBloc.withdrawAmountController.text = intValue.toString();
+                                  _userControlBloc.withdrawAmountController
+                                      .text = intValue.toString();
                                 } catch (e) {
                                   showToast('Pleas type valid number');
-                                  _userControlBloc.withdrawAmountController.clear();
+                                  _userControlBloc.withdrawAmountController
+                                      .clear();
                                 }
                             },
                           ),
                         ),
                         StreamBuilder<bool>(
-                          initialData: false,
-                          stream: _userControlBloc.withdrawSubject,
-                          builder: (context, snapshot) {
-                            if(snapshot.data) {
+                            initialData: false,
+                            stream: _userControlBloc.withdrawSubject,
+                            builder: (context, snapshot) {
+                              if (snapshot.data) {
+                                return CupertinoButton(
+                                  child: CupertinoActivityIndicator(),
+                                  onPressed: () {},
+                                );
+                              }
                               return CupertinoButton(
-                                child: CupertinoActivityIndicator(),
-                                onPressed: () {},
+                                child: Text('Withdraw'),
+                                onPressed: () => _userControlBloc
+                                    .add(UserControlWithdrawCoin()),
                               );
-                            }
-                            return CupertinoButton(
-                              child: Text('Withdraw'),
-                              onPressed: () => _userControlBloc.add(UserControlWithdrawCoin()),
-                            );
-                          }
-                        )
+                            })
                       ],
                     ),
                   ),
@@ -315,8 +315,9 @@ class _UserControlPageState extends State<UserControlPage> {
                   children: [
                     _buildPartnerType(state.data.name, state.data.type),
                     _blankSpace,
-                    _buildCoinControl(state.data),
                     _buildGoToDetailPage(state.data.id),
+                    _blankSpace,
+                    _buildCoinControl(state.data),
                     if (state.data.type != 0)
                       _buildUpdatePartnerType(state.data.type)
                   ],

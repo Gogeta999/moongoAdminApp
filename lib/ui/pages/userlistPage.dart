@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_bloc.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
+import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
+import 'package:MoonGoAdmin/ui/pages/user_control_page.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,17 +25,13 @@ class _UserListPageState extends State<UserListPage> {
   Completer<void> _refreshCompleter;
   var _userList;
   String dropdownValue = '';
+
   @override
   void initState() {
-    _userList = UserListBloc(_listKey);
+    _userList = UserListBloc(_listKey, _buildRemoveItem);
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
-  }
-
-  void _onInitAgain() {
-    _userList = UserListBloc(_listKey, filterByType: 3);
-    return _userList;
   }
 
   Widget _buildItem(BuildContext context, int index,
@@ -51,41 +50,26 @@ class _UserListPageState extends State<UserListPage> {
         ));
   }
 
-//   Widget dropdownButtonItem(
-//     String title,
-//     List data,
-//     Map selectedItem,
-//     int selectedId,
-//     Function handleChange,
-//   ) {
-//     List<Widget> widgets = [
-//       Text(title),
-//       DropdownButtonHideUnderline(
-// //  DropdownButton默认有一条下划线（如上图），此widget去除下划线
-//         child: DropdownButton(
-//           items: data
-//               .map((item) => DropdownMenuItem(
-//                     value: item,
-//                     child: Text(
-//                       item['name'],
-//                       style: TextStyle(
-//                           color: item['id'] == selectedId
-//                               ? Colors.lightBlue[100]
-//                               : Colors.grey),
-//                     ),
-//                   ))
-//               .toList(),
-//           hint: Text('请选择'),
-//           onChanged: handleChange,
-//           value: selectedItem,
-//         ),
-//       ),
-//     ];
-//     return optionItemDecorator(widgets);
-//   }
+  Widget _buildRemoveItem(BuildContext context, int index,
+      Animation<double> animation, ListUser data) {
+    return SlideTransition(
+        position: CurvedAnimation(
+          curve: Curves.easeOut,
+          parent: animation,
+        ).drive(Tween<Offset>(
+          begin: Offset(1, 0),
+          end: Offset(0, 0),
+        )),
+        child: UserListTile(
+          data: data,
+          index: index,
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
+    var filterName;
+
     return BlocProvider<UserListBloc>(
       create: (_) => _userList..add(UserListFetched()),
       child: Scaffold(
@@ -93,15 +77,6 @@ class _UserListPageState extends State<UserListPage> {
           title: Text('Main'),
           backgroundColor: Colors.lightBlue[100],
           actions: [
-            // RaisedButton(
-            //   onPressed: () {
-            //     setState(() {
-            //       globalPending = '1';
-            //     });
-            //     _onUpdated();
-            //   },
-            //   child: Text("Change To Pending List"),
-            // ),
             Container(
               width: 100,
               color: Colors.white,
@@ -124,9 +99,32 @@ class _UserListPageState extends State<UserListPage> {
                     '3',
                     '4',
                   ].map<DropdownMenuItem<String>>((String value) {
+                    switch (value) {
+                      case tAll:
+                        filterName = 'All';
+                        break;
+                      case tNormal:
+                        filterName = 'Normal';
+                        break;
+                      case tCoPlayer:
+                        filterName = 'CoPlayer';
+                        break;
+                      case tCele:
+                        filterName = 'Cele';
+                        break;
+                      case tStreamer:
+                        filterName = 'Streamer';
+                        break;
+                      case tPro:
+                        filterName = 'Pro';
+                        break;
+                      default:
+                        filterName = 'Null Error';
+                        break;
+                    }
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value),
+                      child: Text(filterName),
                     );
                   }).toList(),
                 ),
@@ -215,12 +213,36 @@ class UserListTile extends StatelessWidget {
   final int index;
 
   const UserListTile({Key key, this.data, this.index}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    var userType;
+    switch (data.type) {
+      case kNormal:
+        userType = 'Normal';
+        break;
+      case kCoPlayer:
+        userType = 'CoPlayer';
+        break;
+      case kCele:
+        userType = 'Cele';
+        break;
+      case kStreamer:
+        userType = 'Streamer';
+        break;
+      case kPro:
+        userType = 'Pro';
+        break;
+      default:
+        userType = 'Unknown User';
+        break;
+    }
     return ListTile(
+      onTap: () => Navigator.pushNamed(context, RouteName.userControl,
+          arguments: data.id),
       isThreeLine: true,
       title: Text(data.name),
-      subtitle: Text('User type is ${data.type}'),
+      subtitle: Text('User type is $userType\nID is ${data.id}'),
       leading: CachedNetworkImage(
         imageUrl: data.profile.profileimage,
         imageBuilder: (context, imageProvider) => CircleAvatar(

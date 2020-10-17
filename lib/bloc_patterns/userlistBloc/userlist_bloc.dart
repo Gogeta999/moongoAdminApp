@@ -11,13 +11,14 @@ import 'userlist_state.dart';
 const int transactionLimit = 10;
 
 class UserListBloc extends Bloc<UserListEvent, UserListState> {
-  UserListBloc(this._listKey, {this.isPending, this.filterByType})
+  UserListBloc(this._listKey, this.buildRemovedItem,
+      {this.isPending, this.filterByType})
       : super(UserListInit());
   final isPending;
   final filterByType;
   final GlobalKey<AnimatedListState> _listKey;
-  // final Widget Function(BuildContext context, int index,
-  //     Animation<double> animation, UserList data) buildUpdatedItem;
+  final Widget Function(BuildContext context, int index,
+      Animation<double> animation, ListUser data) buildRemovedItem;
 
   @override
   Stream<Transition<UserListEvent, UserListState>> transformEvents(
@@ -98,12 +99,11 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     print('Refreshing');
     if (currentState is UserListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
-        await Future.delayed(Duration(milliseconds: 20));
-        // _listKey.currentState.removeItem(i, (context, animation) {
-        //   return buildRemovedItem(context, i, animation, currentState.data[i]);
-        // } /*, duration: Duration(milliseconds: 70)*/);
+        await Future.delayed(Duration(milliseconds: 10));
+        _listKey.currentState.removeItem(i, (context, animation) {
+          return buildRemovedItem(context, i, animation, currentState.data[i]);
+        } /*, duration: Duration(milliseconds: 70)*/);
       }
-      currentState.data.clear();
     }
     try {
       data = await _fetchUserList(
@@ -128,13 +128,12 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     List<ListUser> data = [];
     print('Refreshing');
     if (currentState is UserListSuccess) {
-      for (int i = currentState.data.length - 1; i >= 0; i--) {
-        await Future.delayed(Duration(milliseconds: 20));
-        // _listKey.currentState.removeItem(i, (context, animation) {
-        //   return buildRemovedItem(context, i, animation, currentState.data[i]);
-        // } /*, duration: Duration(milliseconds: 70)*/);
+      for (int i = currentState.data.length - 1; i >= 0; --i) {
+        await Future.delayed(Duration(milliseconds: 10));
+        _listKey.currentState.removeItem(i, (context, animation) {
+          return buildRemovedItem(context, i, animation, currentState.data[i]);
+        });
       }
-      currentState.data.clear();
     }
     try {
       data = await _fetchUserList(

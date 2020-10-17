@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/ui/pages/decryptionPage.dart';
 import 'package:MoonGoAdmin/ui/pages/pendinglistPage.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
@@ -56,16 +57,18 @@ class _MainPageState extends State<MainPage> {
             },
           ),
           _padding(20),
-          RaisedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserDetailPage(id: 6)),
-            ),
-            child: Text("User Detail"),
+          CupertinoButton.filled(
+            onPressed: () {
+              var decryptText = decrypt(inputText.text);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DecryptionPage(decryptText)));
+            },
+            child: Text("Decrypt ID, Paste Correctly"),
           ),
           _padding(20),
-          RaisedButton(
-            color: Colors.lightBlue[100],
+          CupertinoButton.filled(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => UserListPage()),
@@ -73,8 +76,7 @@ class _MainPageState extends State<MainPage> {
             child: Text("User List"),
           ),
           _padding(20),
-          RaisedButton(
-            color: Colors.lightBlue[100],
+          CupertinoButton.filled(
             onPressed: () => Navigator.push(
               context,
               CupertinoPageRoute(builder: (context) => PendingListPage()),
@@ -87,14 +89,12 @@ class _MainPageState extends State<MainPage> {
               stream: _logoutButton,
               builder: (context, snapshot) {
                 if (snapshot.data) {
-                  return RaisedButton(
-                    color: Colors.lightBlue[100],
+                  return CupertinoButton.filled(
                     onPressed: () {},
                     child: CupertinoActivityIndicator(),
                   );
                 }
-                return RaisedButton(
-                  color: Colors.lightBlue[100],
+                return CupertinoButton.filled(
                   onPressed: () => _logout(),
                   child: Text('Log Out'),
                 );
