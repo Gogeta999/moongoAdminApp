@@ -1,14 +1,12 @@
 const String mUser = 'mUser';
 // save token to pass our server
 const String token = 'token';
-const String kUserId = 'userId';
-const String kUserName = 'username';
-const String kUserEmail = 'userEmail';
-const String kUserType = 'userType';
-const String kUserProfile = 'userProfile';
-const String kUserCover = 'userCover';
 
 const String kSearchHistory = 'searchHistory';
+
+const String kCoin200 = 'coin_200';
+const String kCoin500 = 'coin_500';
+const String kCoin1000 = 'coin_1000';
 
 const int kNormal = 0;
 const int kCoPlayer = 1;

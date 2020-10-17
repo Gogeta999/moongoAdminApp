@@ -150,6 +150,8 @@ class Api {
 
   ///Admin Api
   static const String Admin = 'moonblink/api/v1/admin/users';
+  static const String UpdateUserCoin = 'moonblink/api/v1/admin/users';
+
   //Admin UserList
   static const String Adminuserlist =
       "moonblink/api/v1/admin/users?pending=-1&user_type=3&limit=5&page=1";

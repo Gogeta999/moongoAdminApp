@@ -24,7 +24,6 @@ class UserLoginBloc extends Bloc<UserLoginEvent, UserLoginState> {
 
   Stream<UserLoginState> _mapLoginToState(
       UserLoginState state, UserLoginLogin event) async* {
-    print('Logging you in');
     try {
       Map<String, dynamic> map = {
         'mail': event.mail,
