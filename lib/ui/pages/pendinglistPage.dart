@@ -23,15 +23,10 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   void initState() {
-    _userList = UserListBloc(_listKey, isPending: 1);
+    _userList = UserListBloc(_listKey, isPending: '1');
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
-  }
-
-  void _onInitAgain() {
-    _userList = UserListBloc(_listKey, filterByType: 3);
-    return _userList;
   }
 
   Widget _buildItem(BuildContext context, int index,
@@ -58,12 +53,6 @@ class _PendingListPageState extends State<PendingListPage> {
         appBar: AppBar(
           title: Text('Main'),
           backgroundColor: Colors.lightBlue[100],
-          actions: [
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () => _onInitAgain(),
-            )
-          ],
         ),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
