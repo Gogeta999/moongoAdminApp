@@ -105,7 +105,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
         yield* _topUpCoin(currentState, kCoin1000);
         break;
       default:
-        print('Error TopUp DrownDown');
+        print('Error TopUp DropDown');
         break;
     }
   }
