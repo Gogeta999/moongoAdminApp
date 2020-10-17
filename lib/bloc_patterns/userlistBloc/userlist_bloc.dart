@@ -128,7 +128,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     List<ListUser> data = [];
     print('Refreshing');
     if (currentState is UserListSuccess) {
-      for (int i = currentState.data.length - 1; i >= 0; --i) {
+      for (int i = currentState.data.length - 1; i >= 0; i--) {
         await Future.delayed(Duration(milliseconds: 20));
         // _listKey.currentState.removeItem(i, (context, animation) {
         //   return buildRemovedItem(context, i, animation, currentState.data[i]);
