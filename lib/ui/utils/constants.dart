@@ -10,15 +10,15 @@ const String kCoin1000 = 'coin_1000';
 
 const int kNormal = 0;
 const int kCoPlayer = 1;
-const int kCele = 2;
-const int kStreamer = 3;
+const int kStreamer = 2;
+const int kCele = 3;
 const int kPro = 4;
 
 const String tAll = '';
 const String tNormal = '0';
 const String tCoPlayer = '1';
-const String tCele = '2';
-const String tStreamer = '3';
+const String tStreamer = '2';
+const String tCele = '3';
 const String tPro = '4';
 
 const String isUserOnForeground = 'isUserOnForeground';
