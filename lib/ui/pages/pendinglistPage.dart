@@ -23,13 +23,29 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   void initState() {
-    _userList = UserListBloc(_listKey, isPending: '1');
+    _userList = UserListBloc(_listKey, _buildRemoveItem, isPending: '1');
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
   }
 
   Widget _buildItem(BuildContext context, int index,
+      Animation<double> animation, ListUser data) {
+    return SlideTransition(
+        position: CurvedAnimation(
+          curve: Curves.easeOut,
+          parent: animation,
+        ).drive(Tween<Offset>(
+          begin: Offset(1, 0),
+          end: Offset(0, 0),
+        )),
+        child: UserListTile(
+          data: data,
+          index: index,
+        ));
+  }
+
+  Widget _buildRemoveItem(BuildContext context, int index,
       Animation<double> animation, ListUser data) {
     return SlideTransition(
         position: CurvedAnimation(
