@@ -91,6 +91,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     return ListTile(
                       leading: Icon(Icons.history),
                       title: Text(history),
+                      trailing: Icon(Icons.call_missed),
                       onTap: () {
                         _queryController.text = history;
                         _queryController.selection = TextSelection.fromPosition(
@@ -117,6 +118,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     return ListTile(
                       leading: Icon(Icons.subdirectory_arrow_right),
                       title: Text(suggestion),
+                      trailing: Icon(Icons.call_missed),
                       onTap: () {
                         _queryController.text = suggestion;
                         _queryController.selection = TextSelection.fromPosition(

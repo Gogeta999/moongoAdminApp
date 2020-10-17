@@ -35,7 +35,7 @@ class User {
         followingcount = json['following_count'],
         rating = json['rating'].toDouble(),
         profile = Profile.fromJson(json['profile']),
-        nrcProfile = NRCProfile.fromJson(json['profile_image']),
+        nrcProfile = json['profile_image'] != null ? NRCProfile.fromJson(json['profile_image']) : null,
         coin = Coin.fromJson(json['coin']);
 }
 

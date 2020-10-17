@@ -114,6 +114,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   tileBox("Rating", state.user.rating.toString()),
                   tileBox("Type", state.user.type.toString()),
                   tileBox("Status", state.user.status.toString()),
+                  if(state.user.nrcProfile != null)
                   Container(
                     height: 200,
                     child: CachedNetworkImage(
@@ -130,6 +131,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       ),
                     ),
                   ),
+                  if(state.user.nrcProfile != null)
                   Container(
                     height: 200,
                     child: CachedNetworkImage(
