@@ -9,4 +9,6 @@ abstract class UserListEvent extends Equatable {
 
 class UserListFetched extends UserListEvent {}
 
+class UserListUpdated extends UserListEvent {}
+
 class UserListRefresh extends UserListEvent {}

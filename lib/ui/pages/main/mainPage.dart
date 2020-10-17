@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/ui/pages/pendinglistPage.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
@@ -19,6 +20,9 @@ class _MainPageState extends State<MainPage> {
   final inputText = TextEditingController();
   BehaviorSubject<bool> _logoutButton = BehaviorSubject.seeded(false);
 
+  Widget _padding(double height) => SizedBox(
+        height: height,
+      );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,36 +55,46 @@ class _MainPageState extends State<MainPage> {
               showToast('User ID is: ' '$_id');
             },
           ),
-          MaterialButton(
+          _padding(20),
+          RaisedButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => UserDetailPage(id: 6)),
             ),
             child: Text("User Detail"),
           ),
-          MaterialButton(
+          _padding(20),
+          RaisedButton(
+            color: Colors.lightBlue[100],
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => UserListPage()),
             ),
             child: Text("User List"),
           ),
-          Padding(padding: EdgeInsets.symmetric(vertical: 15)),
-          CupertinoButton(
-            onPressed: () => null,
-            child: Text("Hola from Main Page"),
+          _padding(20),
+          RaisedButton(
+            color: Colors.lightBlue[100],
+            onPressed: () => Navigator.push(
+              context,
+              CupertinoPageRoute(builder: (context) => PendingListPage()),
+            ),
+            child: Text('Pending List'),
           ),
+          _padding(20),
           StreamBuilder<bool>(
               initialData: false,
               stream: _logoutButton,
               builder: (context, snapshot) {
                 if (snapshot.data) {
-                  return CupertinoButton(
+                  return RaisedButton(
+                    color: Colors.lightBlue[100],
                     onPressed: () {},
                     child: CupertinoActivityIndicator(),
                   );
                 }
-                return CupertinoButton(
+                return RaisedButton(
+                  color: Colors.lightBlue[100],
                   onPressed: () => _logout(),
                   child: Text('Log Out'),
                 );

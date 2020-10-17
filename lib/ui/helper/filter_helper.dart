@@ -1,0 +1,2 @@
+int globalPending;
+String globalFilter = '';

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
+import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
@@ -10,11 +11,10 @@ import 'userlist_state.dart';
 const int transactionLimit = 10;
 
 class UserListBloc extends Bloc<UserListEvent, UserListState> {
-  UserListBloc(
-    this._listKey,
-    // {this.buildUpdatedItem}
-  ) : super(UserListInit());
-
+  UserListBloc(this._listKey, {this.isPending, this.filterByType})
+      : super(UserListInit());
+  final isPending;
+  final filterByType;
   final GlobalKey<AnimatedListState> _listKey;
   // final Widget Function(BuildContext context, int index,
   //     Animation<double> animation, UserList data) buildUpdatedItem;
@@ -37,17 +37,21 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     if (event is UserListRefresh) {
       yield* _mapRefreshedToState(currentState);
     }
-    // if (event is UserListUpdated) {
-    //   yield* _mapRemoveToState(currentState, event.index);
-    // }
+    if (event is UserListUpdated) {
+      yield* _mapUpdatedToState(currentState);
+    }
   }
 
   Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
     if (currentState is UserListInit) {
-      List<UserList> data = [];
+      List<ListUser> data = [];
       try {
-        data = await _fetchUserList(limit: transactionLimit, page: 1);
-        print(data);
+        data = await _fetchUserList(
+            limit: transactionLimit,
+            page: 1,
+            isPending: isPending,
+            type: filterByType);
+        // print(data);
       } catch (_) {
         yield UserListNoData();
         return;
@@ -61,9 +65,13 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     }
     if (currentState is UserListSuccess) {
       final nextPage = currentState.page + 1;
-      List<UserList> data = [];
+      List<ListUser> data = [];
       try {
-        data = await _fetchUserList(limit: transactionLimit, page: nextPage);
+        data = await _fetchUserList(
+            limit: transactionLimit,
+            page: nextPage,
+            isPending: isPending,
+            type: filterByType);
       } catch (error) {
         yield UserListFail(error: error);
       }
@@ -86,7 +94,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
   Stream<UserListState> _mapRefreshedToState(
       UserListState currentState) async* {
-    List<UserList> data = [];
+    List<ListUser> data = [];
     print('Refreshing');
     if (currentState is UserListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
@@ -98,7 +106,42 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       currentState.data.clear();
     }
     try {
-      data = await _fetchUserList(limit: transactionLimit, page: 1);
+      data = await _fetchUserList(
+          limit: transactionLimit,
+          page: 1,
+          isPending: isPending,
+          type: filterByType);
+    } catch (error) {
+      yield UserListFail(error: error);
+    }
+    bool hasReachedMax = data.length < transactionLimit ? true : false;
+    yield data.isEmpty
+        ? UserListNoData()
+        : UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
+    for (int i = 0; i < data.length; i++) {
+      await Future.delayed(Duration(milliseconds: 70));
+      _listKey.currentState.insertItem(i);
+    }
+  }
+
+  Stream<UserListState> _mapUpdatedToState(UserListState currentState) async* {
+    List<ListUser> data = [];
+    print('Refreshing');
+    if (currentState is UserListSuccess) {
+      for (int i = currentState.data.length - 1; i >= 0; --i) {
+        await Future.delayed(Duration(milliseconds: 20));
+        // _listKey.currentState.removeItem(i, (context, animation) {
+        //   return buildRemovedItem(context, i, animation, currentState.data[i]);
+        // } /*, duration: Duration(milliseconds: 70)*/);
+      }
+      currentState.data.clear();
+    }
+    try {
+      data = await _fetchUserList(
+          limit: transactionLimit,
+          page: 1,
+          isPending: globalPending,
+          type: filterByType);
     } catch (error) {
       yield UserListFail(error: error);
     }
@@ -115,10 +158,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   bool _hasReachedMax(UserListState state) =>
       state is UserListSuccess && state.hasReachedMax;
 
-  Future<List<UserList>> _fetchUserList(
+  Future<List<ListUser>> _fetchUserList(
       {int isPending, int type, int limit, int page}) async {
-    List<UserList> userList = await MoonblinkRepository.userList(limit, page,
+    UsersList usersList = await MoonblinkRepository.userList(limit, page,
         isPending: isPending, type: type);
-    return userList;
+    return usersList.usersList;
   }
 }

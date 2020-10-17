@@ -4,27 +4,26 @@ import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_bloc.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
-import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UserListPage extends StatefulWidget {
+class PendingListPage extends StatefulWidget {
   @override
-  _UserListPageState createState() => _UserListPageState();
+  _PendingListPageState createState() => _PendingListPageState();
 }
 
-class _UserListPageState extends State<UserListPage> {
+class _PendingListPageState extends State<PendingListPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final _scrollController = ScrollController();
   final _scrollThreshold = 600.0;
   Completer<void> _refreshCompleter;
   var _userList;
-  String dropdownValue = '';
+
   @override
   void initState() {
-    _userList = UserListBloc(_listKey);
+    _userList = UserListBloc(_listKey, isPending: 1);
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
@@ -51,39 +50,6 @@ class _UserListPageState extends State<UserListPage> {
         ));
   }
 
-//   Widget dropdownButtonItem(
-//     String title,
-//     List data,
-//     Map selectedItem,
-//     int selectedId,
-//     Function handleChange,
-//   ) {
-//     List<Widget> widgets = [
-//       Text(title),
-//       DropdownButtonHideUnderline(
-// //  DropdownButton默认有一条下划线（如上图），此widget去除下划线
-//         child: DropdownButton(
-//           items: data
-//               .map((item) => DropdownMenuItem(
-//                     value: item,
-//                     child: Text(
-//                       item['name'],
-//                       style: TextStyle(
-//                           color: item['id'] == selectedId
-//                               ? Colors.lightBlue[100]
-//                               : Colors.grey),
-//                     ),
-//                   ))
-//               .toList(),
-//           hint: Text('请选择'),
-//           onChanged: handleChange,
-//           value: selectedItem,
-//         ),
-//       ),
-//     ];
-//     return optionItemDecorator(widgets);
-//   }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<UserListBloc>(
@@ -93,42 +59,10 @@ class _UserListPageState extends State<UserListPage> {
           title: Text('Main'),
           backgroundColor: Colors.lightBlue[100],
           actions: [
-            RaisedButton(
-              onPressed: () {
-                setState(() {
-                  globalPending = 1;
-                });
-                _onUpdated();
-              },
-              child: Text("Change To Pending List"),
-            ),
-            Container(
-              width: 100,
-              color: Colors.white,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  onChanged: (String newValue) {
-                    setState(() {
-                      dropdownValue = newValue;
-                    });
-                  },
-                  items: <String>[
-                    '',
-                    '0',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () => _onInitAgain(),
+            )
           ],
         ),
         body: RefreshIndicator(
@@ -199,11 +133,6 @@ class _UserListPageState extends State<UserListPage> {
   Future<void> _onRefresh() {
     _userList.add(UserListRefresh());
     return _refreshCompleter.future;
-  }
-
-  void _onUpdated() {
-    _userList.add(UserListUpdated());
-    return _userList;
   }
 }
 

@@ -25,14 +25,14 @@ class UserListNoData extends UserListState {
 }
 
 class UserListSuccess extends UserListState {
-  final List<UserList> data;
+  final List<ListUser> data;
   final bool hasReachedMax;
   final int page;
 
   const UserListSuccess({this.data, this.hasReachedMax, this.page});
 
   UserListSuccess copyWith(
-      {List<UserList> data, bool hasReachedMax, int page}) {
+      {List<ListUser> data, bool hasReachedMax, int page}) {
     return UserListSuccess(
       data: data ?? this.data,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,

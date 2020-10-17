@@ -10,7 +10,8 @@ import 'package:dio/dio.dart';
 class MoonblinkRepository {
   static Future<LoginModel> login(Map<String, dynamic> data) async {
     FormData formData = FormData.fromMap(data);
-    var response = await DioUtils().postwithData(Api.AdminLogin, data: formData);
+    var response =
+        await DioUtils().postwithData(Api.AdminLogin, data: formData);
     return LoginModel.fromJson(response.data);
   }
 
@@ -32,7 +33,7 @@ class MoonblinkRepository {
   }
 
   //User List
-  static Future<List<UserList>> userList(
+  static Future userList(
     int limit,
     int page, {
     int isPending,
@@ -44,13 +45,8 @@ class MoonblinkRepository {
       'page': page,
       'is_pending': isPending
     });
-    List<UserList> userlist = response.data['data'].map<UserList>((e) {
-      var users = UserList.fromJson(e);
-      return users;
-    }).toList();
-    print("List Success");
-    print(userlist.length);
-    return userlist;
+
+    return UsersList.fromJson(response.data);
   }
 
   static Future updateUserType(int userId, int type) async {
@@ -66,15 +62,15 @@ class MoonblinkRepository {
     return User.fromJson(response.data);
   }
 
-  //User List
-  static Future<List<UserList>> userlistOld(int limit, int page) async {
-    var response = await DioUtils().get(Api.Adminuserlist);
-    List<UserList> userlist = response.data['data'].map<UserList>((e) {
-      var users = UserList.fromJson(e);
-      return users;
-    }).toList();
-    print("List Success");
-    print(userlist.length);
-    return userlist;
-  }
+  // //User List
+  // static Future<List<UsersList>> userlistOld(int limit, int page) async {
+  //   var response = await DioUtils().get(Api.Adminuserlist);
+  //   List<UsersList> userlist = response.data['data'].map<UsersList>((e) {
+  //     var users = UsersList.fromJson(e);
+  //     return users;
+  //   }).toList();
+  //   print("List Success");
+  //   print(userlist.length);
+  //   return userlist;
+  // }
 }
