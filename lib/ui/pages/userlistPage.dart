@@ -162,6 +162,8 @@ class _UserListPageState extends State<UserListPage> {
               }
               if (state is UserListSuccess) {
                 return AnimatedList(
+                  physics: ClampingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
                   shrinkWrap: true,
                   key: _listKey,
                   controller: _scrollController,
