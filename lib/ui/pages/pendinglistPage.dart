@@ -7,6 +7,7 @@ import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
+import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -209,15 +210,22 @@ class _UserListTileState extends State<UserListTile> {
             flex: 2,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-              child: CachedNetworkImage(
-                imageUrl: widget.data.profile.profileimage,
-                imageBuilder: (context, imageProvider) => CircleAvatar(
-                  radius: 32,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  backgroundImage: imageProvider,
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ImageView(widget.data.profile.profileimage)));
+                },
+                child: CachedNetworkImage(
+                  imageUrl: widget.data.profile.profileimage,
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    radius: 32,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    backgroundImage: imageProvider,
+                  ),
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
             ),
           ),

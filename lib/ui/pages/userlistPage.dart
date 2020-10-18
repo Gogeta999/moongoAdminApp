@@ -6,6 +6,7 @@ import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
+import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:MoonGoAdmin/ui/pages/user_control_page.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -245,15 +246,21 @@ class UserListTile extends StatelessWidget {
       isThreeLine: true,
       title: Text(data.name),
       subtitle: Text('User type is $userType\nID is ${data.id}'),
-      leading: CachedNetworkImage(
-        imageUrl: data.profile.profileimage,
-        imageBuilder: (context, imageProvider) => CircleAvatar(
-          radius: 32,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          backgroundImage: imageProvider,
+      leading: InkWell(
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ImageView(data.profile.profileimage)));
+        },
+        child: CachedNetworkImage(
+          imageUrl: data.profile.profileimage,
+          imageBuilder: (context, imageProvider) => CircleAvatar(
+            radius: 32,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundImage: imageProvider,
+          ),
+          placeholder: (context, url) => CircularProgressIndicator(),
+          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
-        placeholder: (context, url) => CircularProgressIndicator(),
-        errorWidget: (context, url, error) => Icon(Icons.error),
       ),
     );
   }

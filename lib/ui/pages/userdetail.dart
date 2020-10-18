@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_bloc.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_event.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_state.dart';
+import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,35 +67,50 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     height: 400,
                     child: Stack(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: state.user.profile.coverimage,
-                          placeholder: (_, __) => CupertinoActivityIndicator(),
-                          errorWidget: (_, __, ___) => Icon(Icons.error),
-                          imageBuilder: (context, imageProvider) => Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 300,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: imageProvider, fit: BoxFit.fill),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    ImageView(state.user.profile.coverimage)));
+                          },
+                          child: CachedNetworkImage(
+                            imageUrl: state.user.profile.coverimage,
+                            placeholder: (_, __) =>
+                                CupertinoActivityIndicator(),
+                            errorWidget: (_, __, ___) => Icon(Icons.error),
+                            imageBuilder: (context, imageProvider) => Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 300,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: imageProvider, fit: BoxFit.fill),
+                              ),
                             ),
                           ),
                         ),
                         Center(
                           child: Padding(
                             padding: const EdgeInsets.only(top: 200),
-                            child: CachedNetworkImage(
-                              imageUrl: state.user.profile.profileimage,
-                              placeholder: (_, __) =>
-                                  CupertinoActivityIndicator(),
-                              errorWidget: (_, __, ___) => Icon(Icons.error),
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                width: 150.0,
-                                height: 150.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      image: imageProvider, fit: BoxFit.fill),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ImageView(
+                                        state.user.profile.profileimage)));
+                              },
+                              child: CachedNetworkImage(
+                                imageUrl: state.user.profile.profileimage,
+                                placeholder: (_, __) =>
+                                    CupertinoActivityIndicator(),
+                                errorWidget: (_, __, ___) => Icon(Icons.error),
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  width: 150.0,
+                                  height: 150.0,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        image: imageProvider, fit: BoxFit.fill),
+                                  ),
                                 ),
                               ),
                             ),
@@ -123,16 +139,23 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   if (state.user.nrcProfile != null)
                     Container(
                       height: 200,
-                      child: CachedNetworkImage(
-                        imageUrl: state.user.nrcProfile.nrcFront,
-                        placeholder: (_, __) => CupertinoActivityIndicator(),
-                        errorWidget: (_, __, ___) => Icon(Icons.error),
-                        imageBuilder: (context, imageProvider) => Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 300,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: imageProvider, fit: BoxFit.cover),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  ImageView(state.user.nrcProfile.nrcFront)));
+                        },
+                        child: CachedNetworkImage(
+                          imageUrl: state.user.nrcProfile.nrcFront,
+                          placeholder: (_, __) => CupertinoActivityIndicator(),
+                          errorWidget: (_, __, ___) => Icon(Icons.error),
+                          imageBuilder: (context, imageProvider) => Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 300,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: imageProvider, fit: BoxFit.cover),
+                            ),
                           ),
                         ),
                       ),
@@ -141,16 +164,23 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   if (state.user.nrcProfile != null)
                     Container(
                       height: 200,
-                      child: CachedNetworkImage(
-                        imageUrl: state.user.nrcProfile.nrcBack,
-                        placeholder: (_, __) => CupertinoActivityIndicator(),
-                        errorWidget: (_, __, ___) => Icon(Icons.error),
-                        imageBuilder: (context, imageProvider) => Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 300,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: imageProvider, fit: BoxFit.cover),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  ImageView(state.user.nrcProfile.nrcBack)));
+                        },
+                        child: CachedNetworkImage(
+                          imageUrl: state.user.nrcProfile.nrcBack,
+                          placeholder: (_, __) => CupertinoActivityIndicator(),
+                          errorWidget: (_, __, ___) => Icon(Icons.error),
+                          imageBuilder: (context, imageProvider) => Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 300,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: imageProvider, fit: BoxFit.cover),
+                            ),
                           ),
                         ),
                       ),
