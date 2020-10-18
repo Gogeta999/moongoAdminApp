@@ -10,7 +10,8 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   AnimationController _countdownController;
 
   @override
@@ -34,7 +35,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     return Scaffold(
       body: WillPopScope(
         child: Align(
-          alignment: Alignment.center,
+          alignment: Alignment.bottomRight,
           child: SafeArea(
             child: InkWell(
               onTap: () {
@@ -97,9 +98,9 @@ void nextPage(context) {
   // }
   if (StorageManager.sharedPreferences.getString(token) != null) {
     Navigator.of(context)
-           .pushNamedAndRemoveUntil(RouteName.main, (route) => false);
+        .pushNamedAndRemoveUntil(RouteName.main, (route) => false);
   } else {
-     Navigator.of(context)
-         .pushNamedAndRemoveUntil(RouteName.login, (route) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(RouteName.login, (route) => false);
   }
 }

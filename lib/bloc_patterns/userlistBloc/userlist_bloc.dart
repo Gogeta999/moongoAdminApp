@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
@@ -42,6 +43,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     if (event is UserListUpdated) {
       yield* _mapUpdatedToState(currentState);
     }
+    if (event is UserListRemoveUser)
+      yield* _mapRemoveUserToState(currentState, event.index);
   }
 
   Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
@@ -137,6 +140,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         _listKey.currentState.removeItem(i, (context, animation) {
           return buildRemovedItem(context, i, animation, currentState.data[i]);
         });
+        currentState.data.removeAt(i);
       }
     }
     try {
@@ -157,6 +161,22 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     for (int i = 0; i < data.length; i++) {
       await Future.delayed(Duration(milliseconds: 70));
       _listKey.currentState.insertItem(i);
+    }
+  }
+
+  Stream<UserListState> _mapRemoveUserToState(
+      UserListState currentState, int index) async* {
+    if (currentState is UserListSuccess) {
+      List<ListUser> data = currentState.data;
+      _listKey.currentState.removeItem(index, (context, animation) {
+        return buildRemovedItem(
+            context, index, animation, currentState.data[index]);
+      });
+      data.removeAt(index);
+      yield UserListSuccess(
+          data: data,
+          hasReachedMax: currentState.hasReachedMax,
+          page: currentState.page);
     }
   }
 

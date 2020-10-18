@@ -57,6 +57,7 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
       yield SearchUserSearchingSuccess(
           data, _initialPage, data.length < _initialSearchLimit, query);
     } catch (e) {
+      MoonGoAdminDB().deleteSuggestion(query);
       yield SearchUserSearchingFailure(e);
     }
   }

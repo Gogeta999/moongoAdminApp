@@ -84,7 +84,7 @@ class _UserControlPageState extends State<UserControlPage> {
                             snapshot.data == ChangePartnerButtonState.coPlayer
                                 ? CupertinoActivityIndicator()
                                 : Text('CoPlayer'),
-                        onPressed: type == 1
+                        onPressed: type == kCoPlayer
                             ? null
                             : () => _userControlBloc
                                 .add(UserControlChangePartnerType(kCoPlayer)),
@@ -93,7 +93,7 @@ class _UserControlPageState extends State<UserControlPage> {
                         child: snapshot.data == ChangePartnerButtonState.cele
                             ? CupertinoActivityIndicator()
                             : Text('Cele'),
-                        onPressed: type == 2
+                        onPressed: type == kCele
                             ? null
                             : () => _userControlBloc
                                 .add(UserControlChangePartnerType(kCele)),
@@ -103,7 +103,7 @@ class _UserControlPageState extends State<UserControlPage> {
                             snapshot.data == ChangePartnerButtonState.streamer
                                 ? CupertinoActivityIndicator()
                                 : Text('Streamer'),
-                        onPressed: type == 3
+                        onPressed: type == kStreamer
                             ? null
                             : () => _userControlBloc
                                 .add(UserControlChangePartnerType(kStreamer)),
@@ -112,7 +112,7 @@ class _UserControlPageState extends State<UserControlPage> {
                         child: snapshot.data == ChangePartnerButtonState.pro
                             ? CupertinoActivityIndicator()
                             : Text('Pro'),
-                        onPressed: type == 4
+                        onPressed: type == kPro
                             ? null
                             : () => _userControlBloc
                                 .add(UserControlChangePartnerType(kPro)),

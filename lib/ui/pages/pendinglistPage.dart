@@ -6,11 +6,14 @@ import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
+import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oktoast/oktoast.dart';
+import 'package:rxdart/rxdart.dart';
 
 class PendingListPage extends StatefulWidget {
   @override
@@ -26,8 +29,7 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   void initState() {
-    globalPending = '1';
-    _userList = UserListBloc(_listKey, _buildRemoveItem);
+    _userList = UserListBloc(_listKey, _buildRemoveItem, isPending: '1');
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
@@ -43,9 +45,12 @@ class _PendingListPageState extends State<PendingListPage> {
           begin: Offset(1, 0),
           end: Offset(0, 0),
         )),
-        child: UserListTile(
-          data: data,
-          index: index,
+        child: BlocProvider.value(
+          value: BlocProvider.of<UserListBloc>(context),
+          child: UserListTile(
+            data: data,
+            index: index,
+          ),
         ));
   }
 
@@ -59,9 +64,12 @@ class _PendingListPageState extends State<PendingListPage> {
           begin: Offset(1, 0),
           end: Offset(0, 0),
         )),
-        child: UserListTile(
-          data: data,
-          index: index,
+        child: BlocProvider.value(
+          value: BlocProvider.of<UserListBloc>(context),
+          child: UserListTile(
+            data: data,
+            index: index,
+          ),
         ));
   }
 
@@ -71,7 +79,7 @@ class _PendingListPageState extends State<PendingListPage> {
       create: (_) => _userList..add(UserListFetched()),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Main'),
+          title: Text('Pending'),
           backgroundColor: Colors.lightBlue[100],
         ),
         body: RefreshIndicator(
@@ -104,6 +112,8 @@ class _PendingListPageState extends State<PendingListPage> {
               }
               if (state is UserListSuccess) {
                 return AnimatedList(
+                  physics: ClampingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
                   shrinkWrap: true,
                   key: _listKey,
                   controller: _scrollController,
@@ -145,15 +155,32 @@ class _PendingListPageState extends State<PendingListPage> {
   }
 }
 
-class UserListTile extends StatelessWidget {
+class UserListTile extends StatefulWidget {
   final ListUser data;
   final int index;
 
-  const UserListTile({Key key, this.data, this.index}) : super(key: key);
+  UserListTile({Key key, this.data, this.index}) : super(key: key);
+
+  @override
+  _UserListTileState createState() => _UserListTileState();
+}
+
+class _UserListTileState extends State<UserListTile> {
+  final List<String> _userTypes = <String>[
+    'CoPlayer', //1
+    'Streamer', //2
+    'Cele', //3
+    'Pro' //4
+  ];
+
+  final _selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
+
+  final _updateSubject = BehaviorSubject.seeded(false);
+
   @override
   Widget build(BuildContext context) {
     var userType;
-    switch (data.type) {
+    switch (widget.data.type) {
       case kNormal:
         userType = 'Normal';
         break;
@@ -173,12 +200,110 @@ class UserListTile extends StatelessWidget {
         userType = 'Unknown User';
         break;
     }
-    return ListTile(
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, RouteName.userControl,
+          arguments: widget.data.id),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+              child: CachedNetworkImage(
+                imageUrl: widget.data.profile.profileimage,
+                imageBuilder: (context, imageProvider) => CircleAvatar(
+                  radius: 32,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  backgroundImage: imageProvider,
+                ),
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.data.name,
+                ),
+                Text('User type is $userType\n ID is ${widget.data.id}'),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                StreamBuilder<String>(
+                    initialData: _userTypes.first,
+                    stream: _selectedUserTypeSubject,
+                    builder: (context, snapshot) {
+                      return DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: snapshot.data,
+                          icon: Icon(Icons.keyboard_arrow_down),
+                          onChanged: (String newValue) {
+                            _selectedUserTypeSubject.add(newValue);
+                          },
+                          items: _userTypes
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value, textAlign: TextAlign.center),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    }),
+                StreamBuilder<bool>(
+                    initialData: false,
+                    stream: _updateSubject,
+                    builder: (context, snapshot) {
+                      if (snapshot.data) {
+                        return CupertinoButton(
+                          child: CupertinoActivityIndicator(),
+                          onPressed: () {},
+                        );
+                      }
+                      return CupertinoButton(
+                        child: Text('Update'),
+                        onPressed: _updateUser,
+                      );
+                    })
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _updateUser() async {
+    _updateSubject.add(true);
+    final String userTypeName = await _selectedUserTypeSubject.first;
+    final int userType = _userTypes.indexOf(userTypeName) + 1;
+    try {
+      await MoonblinkRepository.updateUserType(widget.data.id, userType);
+      BlocProvider.of<UserListBloc>(context)
+          .add(UserListRemoveUser(widget.index));
+      _updateSubject.add(false);
+    } catch (e) {
+      showToast(e.toString());
+      _updateSubject.add(false);
+    }
+  }
+}
+/* return ListTile(
       onTap: () => Navigator.pushNamed(context, RouteName.userControl,
           arguments: data.id),
       isThreeLine: true,
       title: Text(data.name),
-      subtitle: Text('User type is $userType\nID is ${data.id}'),
+      subtitle: Text('Type: $userType\n ID: ${data.id}'),
       leading: CachedNetworkImage(
         imageUrl: data.profile.profileimage,
         imageBuilder: (context, imageProvider) => CircleAvatar(
@@ -189,6 +314,31 @@ class UserListTile extends StatelessWidget {
         placeholder: (context, url) => CircularProgressIndicator(),
         errorWidget: (context, url, error) => Icon(Icons.error),
       ),
-    );
-  }
-}
+      trailing: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StreamBuilder<String>(
+              initialData: _userTypes.first,
+              stream: _selectedUserTypeSubject,
+              builder: (context, snapshot) {
+                return DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: snapshot.data,
+                    icon: Icon(Icons.keyboard_arrow_down),
+                    onChanged: (String newValue) {
+                      _selectedUserTypeSubject.add(newValue);
+                    },
+                    items: _userTypes
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                );
+              }),
+          CupertinoButton(child: Text('Update'), onPressed: (){},)
+        ],
+      ),
+    );*/
