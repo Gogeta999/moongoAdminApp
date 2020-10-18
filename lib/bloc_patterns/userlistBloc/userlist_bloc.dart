@@ -16,6 +16,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       : super(UserListInit());
   final isPending;
   final filterByType;
+
   final GlobalKey<AnimatedListState> _listKey;
   final Widget Function(BuildContext context, int index,
       Animation<double> animation, ListUser data) buildRemovedItem;
@@ -44,14 +45,15 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   }
 
   Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
+    isPending == null ? globalPending = '' : globalPending = isPending;
     if (currentState is UserListInit) {
       List<ListUser> data = [];
       try {
         data = await _fetchUserList(
             limit: transactionLimit,
             page: 1,
-            isPending: isPending,
-            type: filterByType);
+            isPending: globalPending,
+            type: globalFilter);
         // print(data);
       } catch (_) {
         yield UserListNoData();
@@ -71,8 +73,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         data = await _fetchUserList(
             limit: transactionLimit,
             page: nextPage,
-            isPending: isPending,
-            type: filterByType);
+            isPending: globalPending,
+            type: globalFilter);
       } catch (error) {
         yield UserListFail(error: error);
       }
@@ -95,6 +97,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
   Stream<UserListState> _mapRefreshedToState(
       UserListState currentState) async* {
+    isPending == null ? globalPending = '' : globalPending = isPending;
     List<ListUser> data = [];
     print('Refreshing');
     if (currentState is UserListSuccess) {
@@ -109,8 +112,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       data = await _fetchUserList(
           limit: transactionLimit,
           page: 1,
-          isPending: isPending,
-          type: filterByType);
+          isPending: globalPending,
+          type: globalFilter);
     } catch (error) {
       yield UserListFail(error: error);
     }
@@ -125,6 +128,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   }
 
   Stream<UserListState> _mapUpdatedToState(UserListState currentState) async* {
+    isPending == null ? globalPending = '' : globalPending = isPending;
     List<ListUser> data = [];
     print('Refreshing');
     if (currentState is UserListSuccess) {

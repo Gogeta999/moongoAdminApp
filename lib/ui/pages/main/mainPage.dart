@@ -83,7 +83,7 @@ class _MainPageState extends State<MainPage> {
             ),
             child: Text('Pending List'),
           ),
-          _padding(20),
+          _padding(200),
           StreamBuilder<bool>(
               initialData: false,
               stream: _logoutButton,

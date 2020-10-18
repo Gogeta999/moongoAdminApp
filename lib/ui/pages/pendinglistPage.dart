@@ -5,6 +5,7 @@ import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
 import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
+import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +26,8 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   void initState() {
-    _userList = UserListBloc(_listKey, _buildRemoveItem, isPending: '1');
+    globalPending = '1';
+    _userList = UserListBloc(_listKey, _buildRemoveItem);
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();

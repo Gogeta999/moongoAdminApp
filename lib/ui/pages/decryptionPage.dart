@@ -19,9 +19,11 @@ class DecryptionPage extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Container(
-          child: Text(
-              'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$text '),
+        child: Card(
+          child: Container(
+            child: Text(
+                'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$text '),
+          ),
         ),
       ),
     );
