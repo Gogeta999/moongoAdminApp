@@ -37,6 +37,12 @@ class _UserDetailPageState extends State<UserDetailPage> {
     );
   }
 
+  _padding(double height) {
+    return Divider(
+      height: height,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,40 +120,41 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   tileBox("Rating", state.user.rating.toString()),
                   tileBox("Type", state.user.type.toString()),
                   tileBox("Status", state.user.status.toString()),
-                  if(state.user.nrcProfile != null)
-                  Container(
-                    height: 200,
-                    child: CachedNetworkImage(
-                      imageUrl: state.user.nrcProfile.nrcFront,
-                      placeholder: (_, __) => CupertinoActivityIndicator(),
-                      errorWidget: (_, __, ___) => Icon(Icons.error),
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 300,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.fill),
+                  if (state.user.nrcProfile != null)
+                    Container(
+                      height: 200,
+                      child: CachedNetworkImage(
+                        imageUrl: state.user.nrcProfile.nrcFront,
+                        placeholder: (_, __) => CupertinoActivityIndicator(),
+                        errorWidget: (_, __, ___) => Icon(Icons.error),
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: imageProvider, fit: BoxFit.cover),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  if(state.user.nrcProfile != null)
-                  Container(
-                    height: 200,
-                    child: CachedNetworkImage(
-                      imageUrl: state.user.nrcProfile.nrcBack,
-                      placeholder: (_, __) => CupertinoActivityIndicator(),
-                      errorWidget: (_, __, ___) => Icon(Icons.error),
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 300,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.fill),
+                  if (state.user.nrcProfile != null) _padding(10),
+                  if (state.user.nrcProfile != null)
+                    Container(
+                      height: 200,
+                      child: CachedNetworkImage(
+                        imageUrl: state.user.nrcProfile.nrcBack,
+                        placeholder: (_, __) => CupertinoActivityIndicator(),
+                        errorWidget: (_, __, ___) => Icon(Icons.error),
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 300,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: imageProvider, fit: BoxFit.cover),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               );
             }
