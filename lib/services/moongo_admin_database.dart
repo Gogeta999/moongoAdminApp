@@ -46,6 +46,10 @@ class MoonGoAdminDB {
     });
   }
 
+  deleteSuggestion(String query) async {
+    await _db.delete(kSuggestionTableName, where: 'name = ?', whereArgs: [query]);
+  }
+
   dispose() async {
     await _db.close();
   }
