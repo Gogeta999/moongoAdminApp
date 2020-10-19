@@ -7,26 +7,26 @@ class MoonGoAdminDB {
 
   MoonGoAdminDB._();
 
+  final String _tableName = kSuggestionDevTableName; ///Switch to kSuggestionTableName for release
   Database _db;
 
-  final Future<Database> _database = openDatabase(
-    kDataBaseName,
-    onCreate: (db, version) {
-      return db.execute(
-        "CREATE TABLE $kSuggestionTableName(id INTEGER PRIMARY KEY, name TEXT)",
-      );
-    },
-    version: 1,
-  );
-
   init() async {
-    _db = await _database;
+    _db = await openDatabase(
+      kDataBaseName,
+      onCreate: (db, version) {
+        return db.execute(
+          "CREATE TABLE $_tableName(id INTEGER PRIMARY KEY, name TEXT)",
+        );
+      },
+      version: 1,
+    );
+    print(_db.isOpen);
   }
 
   insertSuggestions(List<String> suggestions, List<int> idList) async {
     for (int i = 0; i < suggestions.length; ++i) {
       _db.insert(
-          kSuggestionTableName,
+          _tableName,
           {
             'id': idList[i],
             'name': suggestions[i]
@@ -39,7 +39,7 @@ class MoonGoAdminDB {
   ///Local
   Future<List<String>> retrieveSuggestions(String like) async {
     final List<Map<String, dynamic>> suggestions = await _db.rawQuery(
-        'SELECT "name" FROM "$kSuggestionTableName" WHERE "name" LIKE "%$like%"'
+        'SELECT "name" FROM "$_tableName" WHERE "name" LIKE "%$like%"'
     );
     return List.generate(suggestions.length, (index) {
       return suggestions[index]['name'] as String;
@@ -47,7 +47,7 @@ class MoonGoAdminDB {
   }
 
   deleteSuggestion(String query) async {
-    await _db.delete(kSuggestionTableName, where: 'name = ?', whereArgs: [query]);
+    await _db.delete(_tableName, where: 'name = ?', whereArgs: [query]);
   }
 
   dispose() async {

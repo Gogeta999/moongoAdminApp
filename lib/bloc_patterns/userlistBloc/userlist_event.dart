@@ -12,12 +12,3 @@ class UserListFetched extends UserListEvent {}
 class UserListUpdated extends UserListEvent {}
 
 class UserListRefresh extends UserListEvent {}
-
-class UserListRemoveUser extends UserListEvent {
-  final int index;
-
-  const UserListRemoveUser(this.index);
-
-  @override
-  List<Object> get props => [index];
-}
