@@ -188,11 +188,11 @@ class _UserListTileState extends State<UserListTile> {
       case kCoPlayer:
         userType = 'CoPlayer';
         break;
-      case kCele:
-        userType = 'Cele';
-        break;
       case kStreamer:
         userType = 'Streamer';
+        break;
+      case kCele:
+        userType = 'Cele';
         break;
       case kPro:
         userType = 'Pro';
