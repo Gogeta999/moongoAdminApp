@@ -5,15 +5,17 @@ import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
-import 'userlist_event.dart';
-import 'userlist_state.dart';
+import 'package:equatable/equatable.dart';
+
+part 'pending_list_event.dart';
+part 'pending_list_state.dart';
 
 const int transactionLimit = 10;
 
-class UserListBloc extends Bloc<UserListEvent, UserListState> {
-  UserListBloc(this._listKey, this.buildRemovedItem,
+class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
+  PendingListBloc(this._listKey, this.buildRemovedItem,
       {this.isPending, this.filterByType})
-      : super(UserListInit());
+      : super(PendingListInit());
   final isPending;
   final filterByType;
 
@@ -22,72 +24,74 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       Animation<double> animation, ListUser data) buildRemovedItem;
 
   @override
-  Stream<Transition<UserListEvent, UserListState>> transformEvents(
-      Stream<UserListEvent> events, transitionFn) {
+  Stream<Transition<PendingListEvent, PendingListState>> transformEvents(
+      Stream<PendingListEvent> events, transitionFn) {
     return super.transformEvents(
         events.debounceTime(const Duration(milliseconds: 500)), transitionFn);
   }
 
   @override
-  Stream<UserListState> mapEventToState(
-    UserListEvent event,
-  ) async* {
+  Stream<PendingListState> mapEventToState(
+      PendingListEvent event,
+      ) async* {
     final currentState = state;
-    if (event is UserListFetched && !_hasReachedMax(currentState)) {
+    if (event is PendingListFetched && !_hasReachedMax(currentState)) {
       yield* _mapFetchedToState(currentState);
     }
-    if (event is UserListRefresh) {
+    if (event is PendingListRefresh) {
       yield* _mapRefreshedToState(currentState);
     }
-    if (event is UserListUpdated) {
+    if (event is PendingListUpdated) {
       yield* _mapUpdatedToState(currentState);
     }
+    if (event is PendingListRemoveUser)
+      yield* _mapRemoveUserToState(currentState, event.index);
   }
 
-  Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
+  Stream<PendingListState> _mapFetchedToState(PendingListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
-    if (currentState is UserListInit) {
+    if (currentState is PendingListInit) {
       List<ListUser> data = [];
       try {
-        data = await _fetchUserList(
+        data = await _fetchPendingList(
             limit: transactionLimit,
             page: 1,
             isPending: globalPending,
             type: globalFilter);
         // print(data);
       } catch (_) {
-        yield UserListNoData();
+        yield PendingListNoData();
         return;
       }
       bool hasReachedMax = data.length < transactionLimit ? true : false;
-      yield UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
+      yield PendingListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
       for (int i = 0; i < data.length; i++) {
         await Future.delayed(Duration(milliseconds: 70));
         _listKey.currentState.insertItem(i);
       }
     }
-    if (currentState is UserListSuccess) {
+    if (currentState is PendingListSuccess) {
       final nextPage = currentState.page + 1;
       List<ListUser> data = [];
       try {
-        data = await _fetchUserList(
+        data = await _fetchPendingList(
             limit: transactionLimit,
             page: nextPage,
             isPending: globalPending,
             type: globalFilter);
       } catch (error) {
-        yield UserListFail(error: error);
+        yield PendingListFail(error: error);
       }
       bool hasReachedMax = data.length < transactionLimit ? true : false;
       yield data.isEmpty
           ? currentState.copyWith(hasReachedMax: true)
-          : UserListSuccess(
-              data: currentState.data + data,
-              hasReachedMax: hasReachedMax,
-              page: nextPage);
+          : PendingListSuccess(
+          data: currentState.data + data,
+          hasReachedMax: hasReachedMax,
+          page: nextPage);
       for (int i = currentState.data.length;
-          i < (currentState.data + data).length;
-          i++) {
+      i < (currentState.data + data).length;
+      i++) {
         await Future.delayed(Duration(milliseconds: 70));
         _listKey.currentState.insertItem(i);
       }
@@ -95,12 +99,12 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     }
   }
 
-  Stream<UserListState> _mapRefreshedToState(
-      UserListState currentState) async* {
+  Stream<PendingListState> _mapRefreshedToState(
+      PendingListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
     List<ListUser> data = [];
     print('Refreshing');
-    if (currentState is UserListSuccess) {
+    if (currentState is PendingListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
         await Future.delayed(Duration(milliseconds: 10));
         _listKey.currentState.removeItem(i, (context, animation) {
@@ -109,29 +113,29 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       }
     }
     try {
-      data = await _fetchUserList(
+      data = await _fetchPendingList(
           limit: transactionLimit,
           page: 1,
           isPending: globalPending,
           type: globalFilter);
     } catch (error) {
-      yield UserListFail(error: error);
+      yield PendingListFail(error: error);
     }
     bool hasReachedMax = data.length < transactionLimit ? true : false;
     yield data.isEmpty
-        ? UserListNoData()
-        : UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
+        ? PendingListNoData()
+        : PendingListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
     for (int i = 0; i < data.length; i++) {
       await Future.delayed(Duration(milliseconds: 70));
       _listKey.currentState.insertItem(i);
     }
   }
 
-  Stream<UserListState> _mapUpdatedToState(UserListState currentState) async* {
+  Stream<PendingListState> _mapUpdatedToState(PendingListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
     List<ListUser> data = [];
     print('Refreshing');
-    if (currentState is UserListSuccess) {
+    if (currentState is PendingListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
         await Future.delayed(Duration(milliseconds: 10));
         _listKey.currentState.removeItem(i, (context, animation) {
@@ -141,7 +145,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       }
     }
     try {
-      data = await _fetchUserList(
+      data = await _fetchPendingList(
           limit: transactionLimit,
           page: 1,
           isPending: globalPending,
@@ -149,22 +153,38 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       print(
           'limit: $transactionLimit, ispending: $globalPending,typeis $globalFilter');
     } catch (error) {
-      yield UserListFail(error: error);
+      yield PendingListFail(error: error);
     }
     bool hasReachedMax = data.length < transactionLimit ? true : false;
     yield data.isEmpty
-        ? UserListNoData()
-        : UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
+        ? PendingListNoData()
+        : PendingListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
     for (int i = 0; i < data.length; i++) {
       await Future.delayed(Duration(milliseconds: 70));
       _listKey.currentState.insertItem(i);
     }
   }
 
-  bool _hasReachedMax(UserListState state) =>
-      state is UserListSuccess && state.hasReachedMax;
+  Stream<PendingListState> _mapRemoveUserToState(
+      PendingListState currentState, int index) async* {
+    if (currentState is PendingListSuccess) {
+      List<ListUser> data = List.from(currentState.data);
+      _listKey.currentState.removeItem(index, (context, animation) {
+        return buildRemovedItem(
+            context, index, animation, currentState.data[index]);
+      });
+      data.removeAt(index);
+      yield PendingListSuccess(
+          data: data,
+          hasReachedMax: currentState.hasReachedMax,
+          page: currentState.page);
+    }
+  }
 
-  Future<List<ListUser>> _fetchUserList(
+  bool _hasReachedMax(PendingListState state) =>
+      state is PendingListSuccess && state.hasReachedMax;
+
+  Future<List<ListUser>> _fetchPendingList(
       {String isPending, String type, int limit, int page}) async {
     UsersList usersList = await MoonblinkRepository.userList(limit, page,
         isPending: isPending, type: type);
