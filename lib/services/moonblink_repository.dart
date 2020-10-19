@@ -56,6 +56,12 @@ class MoonblinkRepository {
     return response.data;
   }
 
+  static Future rejectPendingUser(int userId) async {
+    var response = await DioUtils()
+        .put(Api.UpdateUserType + '/$userId', queryParameters: {'type_status': 0});
+    return response.data;
+  }
+
   ///map with topUp, productId
   static Future<Wallet> topUpUserCoin(
       int userId, Map<String, dynamic> map) async {

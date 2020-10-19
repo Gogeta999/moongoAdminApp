@@ -1,11 +1,8 @@
 import 'dart:async';
 
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_bloc.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
+import 'package:MoonGoAdmin/bloc_patterns/pendingListBloc/pending_list_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
-import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
@@ -26,11 +23,11 @@ class _PendingListPageState extends State<PendingListPage> {
   final _scrollController = ScrollController();
   final _scrollThreshold = 600.0;
   Completer<void> _refreshCompleter;
-  var _userList;
+  var _pendingListBloc;
 
   @override
   void initState() {
-    _userList = UserListBloc(_listKey, _buildRemoveItem, isPending: '1');
+    _pendingListBloc = PendingListBloc(_listKey, _buildRemoveItem, isPending: '1');
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
@@ -47,8 +44,8 @@ class _PendingListPageState extends State<PendingListPage> {
           end: Offset(0, 0),
         )),
         child: BlocProvider.value(
-          value: BlocProvider.of<UserListBloc>(context),
-          child: UserListTile(
+          value: BlocProvider.of<PendingListBloc>(context),
+          child: PendingListTile(
             data: data,
             index: index,
           ),
@@ -66,8 +63,8 @@ class _PendingListPageState extends State<PendingListPage> {
           end: Offset(0, 0),
         )),
         child: BlocProvider.value(
-          value: BlocProvider.of<UserListBloc>(context),
-          child: UserListTile(
+          value: BlocProvider.of<PendingListBloc>(context),
+          child: PendingListTile(
             data: data,
             index: index,
           ),
@@ -76,8 +73,8 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<UserListBloc>(
-      create: (_) => _userList..add(UserListFetched()),
+    return BlocProvider<PendingListBloc>(
+      create: (_) => _pendingListBloc..add(PendingListFetched()),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Pending'),
@@ -85,33 +82,33 @@ class _PendingListPageState extends State<PendingListPage> {
         ),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
-          child: BlocConsumer<UserListBloc, UserListState>(
+          child: BlocConsumer<PendingListBloc, PendingListState>(
             listener: (BuildContext context, state) {
-              if (state is UserListSuccess) {
+              if (state is PendingListSuccess) {
                 _refreshCompleter.complete();
                 _refreshCompleter = Completer();
               }
-              if (state is UserListFail) {
+              if (state is PendingListFail) {
                 _refreshCompleter.completeError(state.error);
                 _refreshCompleter = Completer();
               }
             },
             builder: (BuildContext context, state) {
               print(state);
-              if (state is UserListInit) {
+              if (state is PendingListInit) {
                 return Center(child: CupertinoActivityIndicator());
               }
-              if (state is UserListFail) {
+              if (state is PendingListFail) {
                 return Center(
                   child: Text(state.error),
                 );
               }
-              if (state is UserListNoData) {
+              if (state is PendingListNoData) {
                 return Center(
                   child: Text("Opps,. No data ah"),
                 );
               }
-              if (state is UserListSuccess) {
+              if (state is PendingListSuccess) {
                 return AnimatedList(
                   physics: ClampingScrollPhysics(
                       parent: AlwaysScrollableScrollPhysics()),
@@ -146,27 +143,27 @@ class _PendingListPageState extends State<PendingListPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _userList.add(UserListFetched());
+      _pendingListBloc.add(PendingListFetched());
     }
   }
 
   Future<void> _onRefresh() {
-    _userList.add(UserListRefresh());
+    _pendingListBloc.add(PendingListRefresh());
     return _refreshCompleter.future;
   }
 }
 
-class UserListTile extends StatefulWidget {
+class PendingListTile extends StatefulWidget {
   final ListUser data;
   final int index;
 
-  UserListTile({Key key, this.data, this.index}) : super(key: key);
+  PendingListTile({Key key, this.data, this.index}) : super(key: key);
 
   @override
-  _UserListTileState createState() => _UserListTileState();
+  _PendingListTileState createState() => _PendingListTileState();
 }
 
-class _UserListTileState extends State<UserListTile> {
+class _PendingListTileState extends State<PendingListTile> {
   final List<String> _userTypes = <String>[
     'CoPlayer', //1
     'Streamer', //2
@@ -177,6 +174,7 @@ class _UserListTileState extends State<UserListTile> {
   final _selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
 
   final _updateSubject = BehaviorSubject.seeded(false);
+  final _rejectSubject = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +205,7 @@ class _UserListTileState extends State<UserListTile> {
       child: Row(
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
               child: InkWell(
@@ -242,10 +240,10 @@ class _UserListTileState extends State<UserListTile> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 5,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 StreamBuilder<String>(
                     initialData: _userTypes.first,
@@ -268,21 +266,40 @@ class _UserListTileState extends State<UserListTile> {
                         ),
                       );
                     }),
-                StreamBuilder<bool>(
-                    initialData: false,
-                    stream: _updateSubject,
-                    builder: (context, snapshot) {
-                      if (snapshot.data) {
-                        return CupertinoButton(
-                          child: CupertinoActivityIndicator(),
-                          onPressed: () {},
-                        );
-                      }
-                      return CupertinoButton(
-                        child: Text('Update'),
-                        onPressed: _updateUser,
-                      );
-                    })
+                Row(
+                  children: [
+                    StreamBuilder<bool>(
+                        initialData: false,
+                        stream: _rejectSubject,
+                        builder: (context, snapshot) {
+                          if (snapshot.data) {
+                            return CupertinoButton(
+                              child: CupertinoActivityIndicator(),
+                              onPressed: () {},
+                            );
+                          }
+                          return CupertinoButton(
+                            child: Text('Reject'),
+                            onPressed: _rejectUser,
+                          );
+                        }),
+                    StreamBuilder<bool>(
+                        initialData: false,
+                        stream: _updateSubject,
+                        builder: (context, snapshot) {
+                          if (snapshot.data) {
+                            return CupertinoButton(
+                              child: CupertinoActivityIndicator(),
+                              onPressed: () {},
+                            );
+                          }
+                          return CupertinoButton(
+                            child: Text('Update'),
+                            onPressed: _updateUser,
+                          );
+                        })
+                  ],
+                )
               ],
             ),
           ),
@@ -297,56 +314,27 @@ class _UserListTileState extends State<UserListTile> {
     final int userType = _userTypes.indexOf(userTypeName) + 1;
     try {
       await MoonblinkRepository.updateUserType(widget.data.id, userType);
-      BlocProvider.of<UserListBloc>(context)
-          .add(UserListRemoveUser(widget.index));
+      BlocProvider.of<PendingListBloc>(context)
+          .add(PendingListRemoveUser(widget.index));
       _updateSubject.add(false);
     } catch (e) {
       showToast(e.toString());
       _updateSubject.add(false);
     }
   }
+
+  _rejectUser() async {
+    _rejectSubject.add(true);
+    try {
+      //await Future.delayed(Duration(milliseconds: 2000));
+      await MoonblinkRepository.rejectPendingUser(widget.data.id);
+      BlocProvider.of<PendingListBloc>(context)
+          .add(PendingListRemoveUser(widget.index));
+      _rejectSubject.add(false);
+    } catch (e) {
+      showToast(e.toString());
+      _rejectSubject.add(false);
+    }
+  }
 }
-/* return ListTile(
-      onTap: () => Navigator.pushNamed(context, RouteName.userControl,
-          arguments: data.id),
-      isThreeLine: true,
-      title: Text(data.name),
-      subtitle: Text('Type: $userType\n ID: ${data.id}'),
-      leading: CachedNetworkImage(
-        imageUrl: data.profile.profileimage,
-        imageBuilder: (context, imageProvider) => CircleAvatar(
-          radius: 32,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          backgroundImage: imageProvider,
-        ),
-        placeholder: (context, url) => CircularProgressIndicator(),
-        errorWidget: (context, url, error) => Icon(Icons.error),
-      ),
-      trailing: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          StreamBuilder<String>(
-              initialData: _userTypes.first,
-              stream: _selectedUserTypeSubject,
-              builder: (context, snapshot) {
-                return DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: snapshot.data,
-                    icon: Icon(Icons.keyboard_arrow_down),
-                    onChanged: (String newValue) {
-                      _selectedUserTypeSubject.add(newValue);
-                    },
-                    items: _userTypes
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                );
-              }),
-          CupertinoButton(child: Text('Update'), onPressed: (){},)
-        ],
-      ),
-    );*/
+

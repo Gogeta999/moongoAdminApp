@@ -25,3 +25,4 @@ const String isUserOnForeground = 'isUserOnForeground';
 
 const String kDataBaseName = 'moongo_admin.db';
 const String kSuggestionTableName = 'MoonGoAdminSuggestion';
+const String kSuggestionDevTableName = 'MoonGoAdminDevSuggestion';
