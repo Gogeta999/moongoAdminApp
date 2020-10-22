@@ -165,8 +165,9 @@ class _UserControlPageState extends State<UserControlPage> {
                     builder: (context, snapshot) {
                       return CupertinoSwitch(
                           value: snapshot.data,
-                          onChanged: (value) =>
-                              _userControlBloc.productIdOrAmountSubject.add(value));
+                          onChanged: (value) => _userControlBloc
+                              .productIdOrAmountSubject
+                              .add(value));
                     }),
               ],
             ),
@@ -184,13 +185,14 @@ class _UserControlPageState extends State<UserControlPage> {
                           initialData: true,
                           stream: _userControlBloc.productIdOrAmountSubject,
                           builder: (context, snapshot) {
-                            if(snapshot.data) {
+                            if (snapshot.data) {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: CupertinoTextField(
                                   controller:
-                                  _userControlBloc.topUpAmountController,
-                                  clearButtonMode: OverlayVisibilityMode.editing,
+                                      _userControlBloc.topUpAmountController,
+                                  clearButtonMode:
+                                      OverlayVisibilityMode.editing,
                                   placeholder: 'TopUp Amount',
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
@@ -200,25 +202,28 @@ class _UserControlPageState extends State<UserControlPage> {
                               );
                             } else {
                               return StreamBuilder<String>(
-                                  initialData: _userControlBloc.productList.first,
-                                  stream: _userControlBloc.selectedProductSubject,
+                                  initialData:
+                                      _userControlBloc.productList.first,
+                                  stream:
+                                      _userControlBloc.selectedProductSubject,
                                   builder: (context, snapshot) {
                                     return DropdownButtonHideUnderline(
                                       child: DropdownButton<String>(
                                         value: snapshot.data,
                                         icon: Icon(Icons.keyboard_arrow_down),
                                         onChanged: (String newValue) {
-                                          _userControlBloc.selectedProductSubject
+                                          _userControlBloc
+                                              .selectedProductSubject
                                               .add(newValue);
                                         },
                                         items: _userControlBloc.productList
                                             .map<DropdownMenuItem<String>>(
                                                 (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
                                       ),
                                     );
                                   });
@@ -316,6 +321,7 @@ class _UserControlPageState extends State<UserControlPage> {
         _userControlBloc.withdrawAmountController.clear();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text('User Control'),
         ),
