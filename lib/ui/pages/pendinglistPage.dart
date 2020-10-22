@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:MoonGoAdmin/bloc_patterns/pendingListBloc/pending_list_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/pendingListBloc/pending_list_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
@@ -27,7 +27,8 @@ class _PendingListPageState extends State<PendingListPage> {
 
   @override
   void initState() {
-    _pendingListBloc = PendingListBloc(_listKey, _buildRemoveItem, isPending: '1');
+    _pendingListBloc =
+        PendingListBloc(_listKey, _buildRemoveItem, isPending: '1');
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
@@ -268,6 +269,8 @@ class _PendingListTileState extends State<PendingListTile> {
                     }),
                 Row(
                   children: [
+                    // CupertinoButton(child: Text(''), onPressed: null)
+                    //Still Unsupport
                     StreamBuilder<bool>(
                         initialData: false,
                         stream: _rejectSubject,
@@ -337,4 +340,3 @@ class _PendingListTileState extends State<PendingListTile> {
     }
   }
 }
-

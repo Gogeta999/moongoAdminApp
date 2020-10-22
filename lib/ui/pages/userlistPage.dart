@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_bloc.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_event.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userlistBloc/userlist_state.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userlistBloc/userlist_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userlistBloc/userlist_event.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';

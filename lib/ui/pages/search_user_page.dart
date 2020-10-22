@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:MoonGoAdmin/bloc_patterns/searchBloc/search_user_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/searchBloc/search_user_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';

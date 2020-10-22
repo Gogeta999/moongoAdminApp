@@ -1,4 +1,4 @@
-import 'package:MoonGoAdmin/bloc_patterns/user_control/user_control_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/user_control/user_control_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:flutter/cupertino.dart';

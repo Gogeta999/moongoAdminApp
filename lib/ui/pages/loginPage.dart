@@ -1,4 +1,4 @@
-import 'package:MoonGoAdmin/bloc_patterns/loginBloc/user_login_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/loginBloc/user_login_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     _loginSubject.add(LoginButtonState.loading);
-    _userLoginBloc
-        .add(UserLoginLogin(mail, password));
+    _userLoginBloc.add(UserLoginLogin(mail, password));
   }
 }

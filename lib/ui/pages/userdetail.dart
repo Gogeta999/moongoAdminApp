@@ -1,6 +1,6 @@
-import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_bloc.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_event.dart';
-import 'package:MoonGoAdmin/bloc_patterns/userdetailbloc/userdetail_state.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userdetailbloc/userdetail_bloc.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userdetailbloc/userdetail_event.dart';
+import 'package:MoonGoAdmin/api/bloc_patterns/userdetailbloc/userdetail_state.dart';
 import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';

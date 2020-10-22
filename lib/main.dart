@@ -1,5 +1,6 @@
+import 'package:MoonGoAdmin/api/bloc_patterns/simple_bloc_observer.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
-import 'package:MoonGoAdmin/bloc_patterns/simple_bloc_observer.dart';
+
 import 'package:MoonGoAdmin/generated/l10n.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart' as Nav;
 import 'package:MoonGoAdmin/global/storage_manager.dart';
@@ -60,7 +61,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarBrightness: Brightness.light));
-    DioUtils(); /// will init instance with authorization or not
+    DioUtils();
+
+    /// will init instance with authorization or not
   }
 
   @override
