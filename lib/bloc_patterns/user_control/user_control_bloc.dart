@@ -21,6 +21,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   final BehaviorSubject<ChangePartnerButtonState> changePartnerButtonSubject =
       BehaviorSubject.seeded(ChangePartnerButtonState.initial);
 
+  final productIdOrAmountSubject = BehaviorSubject.seeded(true);/// true = amount, false = product_id
   final BehaviorSubject<bool> topUpSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> withdrawSubject = BehaviorSubject.seeded(false);
 
@@ -33,6 +34,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     '1000 Coins'
   ];
 
+  final TextEditingController topUpAmountController = TextEditingController();
   final TextEditingController withdrawAmountController =
       TextEditingController();
 
@@ -86,27 +88,53 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   Stream<UserControlState> _mapTopUpCoinToState(
       UserControlState currentState) async* {
     topUpSubject.add(true);
-    final productName = await selectedProductSubject.first;
-    switch (productName) {
-      case 'Select Product':
-        if (currentState is UserControlFetchedSuccess) {
-          yield UserControlTopUpFailure('Please select a product');
+    final customize = await productIdOrAmountSubject.first;
+    if (customize) {
+      if (currentState is UserControlFetchedSuccess) {
+        final amount = int.tryParse(topUpAmountController.text);
+        if (amount == null) {
+          yield UserControlTopUpFailure('Please type a valid amount');
           yield UserControlFetchedSuccess(currentState.data);
           topUpSubject.add(false);
+          return;
         }
-        break;
-      case '200 Coins':
-        yield* _topUpCoin(currentState, kCoin200);
-        break;
-      case '500 Coins':
-        yield* _topUpCoin(currentState, kCoin500);
-        break;
-      case '1000 Coins':
-        yield* _topUpCoin(currentState, kCoin1000);
-        break;
-      default:
-        print('Error TopUp DropDown');
-        break;
+        final map = {'topup': amount};
+        try {
+          Wallet wallet = await MoonblinkRepository.topUpUserCoin(userId, map);
+          User data = currentState.data;
+          data.wallet = wallet;
+          yield UserControlTopUpSuccess();
+          yield UserControlFetchedSuccess(data);
+          topUpAmountController.clear();
+          topUpSubject.add(false);
+        } catch (e) {
+          yield UserControlWithdrawFailure(e);
+          topUpSubject.add(false);
+        }
+      }
+    } else {
+      final productName = await selectedProductSubject.first;
+      switch (productName) {
+        case 'Select Product':
+          if (currentState is UserControlFetchedSuccess) {
+            yield UserControlTopUpFailure('Please select a product');
+            yield UserControlFetchedSuccess(currentState.data);
+            topUpSubject.add(false);
+          }
+          break;
+        case '200 Coins':
+          yield* _topUpCoinWithProductId(currentState, kCoin200);
+          break;
+        case '500 Coins':
+          yield* _topUpCoinWithProductId(currentState, kCoin500);
+          break;
+        case '1000 Coins':
+          yield* _topUpCoinWithProductId(currentState, kCoin1000);
+          break;
+        default:
+          print('Error TopUp DropDown');
+          break;
+      }
     }
   }
 
@@ -155,7 +183,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     }
   }
 
-  Stream<UserControlState> _topUpCoin(
+  Stream<UserControlState> _topUpCoinWithProductId(
       UserControlState currentState, String productId) async* {
     if (currentState is UserControlFetchedSuccess) {
       final map = {'topup': 1, 'product_id': productId};

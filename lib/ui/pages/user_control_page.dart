@@ -3,6 +3,7 @@ import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:oktoast/oktoast.dart';
@@ -144,8 +145,31 @@ class _UserControlPageState extends State<UserControlPage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${user.name} has ${user.wallet.value} coins'),
+            Row(
+              children: [
+                Expanded(
+                    child: Text('${user.name} has ${user.wallet.value} coins',
+                        textAlign: TextAlign.center)),
+              ],
+            ),
+            _blankSpace,
+            Row(
+              children: [
+                Text('CustomizeTopUp'),
+                SizedBox(width: 5),
+                StreamBuilder<bool>(
+                    initialData: true,
+                    stream: _userControlBloc.productIdOrAmountSubject,
+                    builder: (context, snapshot) {
+                      return CupertinoSwitch(
+                          value: snapshot.data,
+                          onChanged: (value) =>
+                              _userControlBloc.productIdOrAmountSubject.add(value));
+                    }),
+              ],
+            ),
             _blankSpace,
             Row(
               children: [
@@ -156,29 +180,51 @@ class _UserControlPageState extends State<UserControlPage> {
                         border: Border.all(color: Colors.blue)),
                     child: Column(
                       children: [
-                        StreamBuilder<String>(
-                            initialData: _userControlBloc.productList.first,
-                            stream: _userControlBloc.selectedProductSubject,
-                            builder: (context, snapshot) {
-                              return DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: snapshot.data,
-                                  icon: Icon(Icons.keyboard_arrow_down),
-                                  onChanged: (String newValue) {
-                                    _userControlBloc.selectedProductSubject
-                                        .add(newValue);
-                                  },
-                                  items: _userControlBloc.productList
-                                      .map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
+                        StreamBuilder(
+                          initialData: true,
+                          stream: _userControlBloc.productIdOrAmountSubject,
+                          builder: (context, snapshot) {
+                            if(snapshot.data) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CupertinoTextField(
+                                  controller:
+                                  _userControlBloc.topUpAmountController,
+                                  clearButtonMode: OverlayVisibilityMode.editing,
+                                  placeholder: 'TopUp Amount',
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    WhitelistingTextInputFormatter.digitsOnly
+                                  ],
                                 ),
                               );
-                            }),
+                            } else {
+                              return StreamBuilder<String>(
+                                  initialData: _userControlBloc.productList.first,
+                                  stream: _userControlBloc.selectedProductSubject,
+                                  builder: (context, snapshot) {
+                                    return DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: snapshot.data,
+                                        icon: Icon(Icons.keyboard_arrow_down),
+                                        onChanged: (String newValue) {
+                                          _userControlBloc.selectedProductSubject
+                                              .add(newValue);
+                                        },
+                                        items: _userControlBloc.productList
+                                            .map<DropdownMenuItem<String>>(
+                                                (String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              );
+                                            }).toList(),
+                                      ),
+                                    );
+                                  });
+                            }
+                          },
+                        ),
                         StreamBuilder<bool>(
                             initialData: false,
                             stream: _userControlBloc.topUpSubject,
@@ -215,18 +261,21 @@ class _UserControlPageState extends State<UserControlPage> {
                             clearButtonMode: OverlayVisibilityMode.editing,
                             placeholder: 'Withdraw Amount',
                             keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              if (value.length > 0)
-                                try {
-                                  int intValue = int.parse(value);
-                                  _userControlBloc.withdrawAmountController
-                                      .text = intValue.toString();
-                                } catch (e) {
-                                  showToast('Pleas type valid number');
-                                  _userControlBloc.withdrawAmountController
-                                      .clear();
-                                }
-                            },
+                            inputFormatters: [
+                              WhitelistingTextInputFormatter.digitsOnly
+                            ],
+                            // onChanged: (value) {
+                            //   if (value.length > 0)
+                            //     try {
+                            //       int intValue = int.parse(value);
+                            //       _userControlBloc.withdrawAmountController
+                            //           .text = intValue.toString();
+                            //     } catch (e) {
+                            //       showToast('Pleas type valid number');
+                            //       _userControlBloc.withdrawAmountController
+                            //           .clear();
+                            //     }
+                            // },
                           ),
                         ),
                         StreamBuilder<bool>(
@@ -269,12 +318,6 @@ class _UserControlPageState extends State<UserControlPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('User Control'),
-          // actions: [
-          //   CupertinoButton(
-          //     child: Text('Cash In', style: TextStyle(color: Colors.black)),
-          //     onPressed: () {},
-          //   )
-          // ],
         ),
         body: BlocProvider(
           create: (_) => _userControlBloc,
