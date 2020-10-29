@@ -47,7 +47,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
     if (currentState is UserListInit) {
-      List<ListUser> data = [];
+      UsersList data;
       try {
         data = await _fetchUserList(
             limit: transactionLimit,
@@ -59,16 +59,21 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         yield UserListNoData();
         return;
       }
-      bool hasReachedMax = data.length < transactionLimit ? true : false;
-      yield UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
-      for (int i = 0; i < data.length; i++) {
+      bool hasReachedMax =
+          data.usersList.length < transactionLimit ? true : false;
+      yield UserListSuccess(
+          data: data.usersList,
+          totalCount: data.totalCount,
+          hasReachedMax: hasReachedMax,
+          page: 1);
+      for (int i = 0; i < data.usersList.length; i++) {
         await Future.delayed(Duration(milliseconds: 70));
         _listKey.currentState.insertItem(i);
       }
     }
     if (currentState is UserListSuccess) {
       final nextPage = currentState.page + 1;
-      List<ListUser> data = [];
+      UsersList data;
       try {
         data = await _fetchUserList(
             limit: transactionLimit,
@@ -78,15 +83,17 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       } catch (error) {
         yield UserListFail(error: error);
       }
-      bool hasReachedMax = data.length < transactionLimit ? true : false;
-      yield data.isEmpty
+      bool hasReachedMax =
+          data.usersList.length < transactionLimit ? true : false;
+      yield data.usersList.isEmpty
           ? currentState.copyWith(hasReachedMax: true)
           : UserListSuccess(
-              data: currentState.data + data,
+              data: currentState.data + data.usersList,
+              totalCount: data.totalCount,
               hasReachedMax: hasReachedMax,
               page: nextPage);
       for (int i = currentState.data.length;
-          i < (currentState.data + data).length;
+          i < (currentState.data + data.usersList).length;
           i++) {
         await Future.delayed(Duration(milliseconds: 70));
         _listKey.currentState.insertItem(i);
@@ -98,7 +105,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   Stream<UserListState> _mapRefreshedToState(
       UserListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
-    List<ListUser> data = [];
+    UsersList data;
     print('Refreshing');
     if (currentState is UserListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
@@ -117,11 +124,16 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     } catch (error) {
       yield UserListFail(error: error);
     }
-    bool hasReachedMax = data.length < transactionLimit ? true : false;
-    yield data.isEmpty
+    bool hasReachedMax =
+        data.usersList.length < transactionLimit ? true : false;
+    yield data.usersList.isEmpty
         ? UserListNoData()
-        : UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
-    for (int i = 0; i < data.length; i++) {
+        : UserListSuccess(
+            data: data.usersList,
+            totalCount: data.totalCount,
+            hasReachedMax: hasReachedMax,
+            page: 1);
+    for (int i = 0; i < data.usersList.length; i++) {
       await Future.delayed(Duration(milliseconds: 70));
       _listKey.currentState.insertItem(i);
     }
@@ -129,7 +141,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
   Stream<UserListState> _mapUpdatedToState(UserListState currentState) async* {
     isPending == null ? globalPending = '' : globalPending = isPending;
-    List<ListUser> data = [];
+    UsersList data;
     print('Refreshing');
     if (currentState is UserListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
@@ -151,11 +163,16 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     } catch (error) {
       yield UserListFail(error: error);
     }
-    bool hasReachedMax = data.length < transactionLimit ? true : false;
-    yield data.isEmpty
+    bool hasReachedMax =
+        data.usersList.length < transactionLimit ? true : false;
+    yield data.usersList.isEmpty
         ? UserListNoData()
-        : UserListSuccess(data: data, hasReachedMax: hasReachedMax, page: 1);
-    for (int i = 0; i < data.length; i++) {
+        : UserListSuccess(
+            data: data.usersList,
+            totalCount: data.totalCount,
+            hasReachedMax: hasReachedMax,
+            page: 1);
+    for (int i = 0; i < data.usersList.length; i++) {
       await Future.delayed(Duration(milliseconds: 70));
       _listKey.currentState.insertItem(i);
     }
@@ -164,10 +181,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   bool _hasReachedMax(UserListState state) =>
       state is UserListSuccess && state.hasReachedMax;
 
-  Future<List<ListUser>> _fetchUserList(
+  Future<UsersList> _fetchUserList(
       {String isPending, String type, int limit, int page}) async {
     UsersList usersList = await MoonblinkRepository.userList(limit, page,
         isPending: isPending, type: type);
-    return usersList.usersList;
+    return usersList;
   }
 }
