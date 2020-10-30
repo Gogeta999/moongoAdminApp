@@ -78,7 +78,40 @@ class _PendingListPageState extends State<PendingListPage> {
       create: (_) => _pendingListBloc..add(PendingListFetched()),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Pending'),
+          title: BlocBuilder<PendingListBloc, PendingListState>(
+            builder: (context, state) {
+              if (state is PendingListInit) {
+                return Text('Pending List');
+              }
+              if (state is PendingListNoData) {
+                return Column(
+                  children: [
+                    Text('Pending List'),
+                    Text('Total: 0'),
+                  ],
+                );
+              }
+              if (state is PendingListFail) {
+                return Column(
+                  children: [
+                    Text('Pending List'),
+                    Text('Total: UNKNOWN'),
+                  ],
+                );
+              }
+              if (state is PendingListSuccess) {
+                return Column(
+                  children: [
+                    Text('Pending List'),
+                    Text('Total: ${state.totalCount}',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold))
+                  ],
+                );
+              }
+              return Text('Something went wrong!');
+            },
+          ),
           backgroundColor: Colors.lightBlue[100],
         ),
         body: RefreshIndicator(

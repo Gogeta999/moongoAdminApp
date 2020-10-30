@@ -2,14 +2,15 @@ import 'package:MoonGoAdmin/models/user_model.dart';
 
 class UsersList {
   final List<ListUser> usersList;
-  UsersList({this.usersList});
+  final int totalCount;
+  UsersList({this.usersList, this.totalCount});
   factory UsersList.fromJson(Map<String, dynamic> json) {
     List<dynamic> dataJson = json['data'];
-
+    int total = json['total_count'];
     List<ListUser> usersList =
         dataJson.map((e) => ListUser.fromJson(e)).toList();
 
-    return UsersList(usersList: usersList);
+    return UsersList(usersList: usersList, totalCount: total);
   }
 
   @override
