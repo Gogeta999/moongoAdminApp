@@ -7,7 +7,6 @@ import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
-import 'package:MoonGoAdmin/ui/pages/user_control_page.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,7 +74,40 @@ class _UserListPageState extends State<UserListPage> {
       create: (_) => _userList..add(UserListFetched()),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Main'),
+          title: BlocBuilder<UserListBloc, UserListState>(
+            builder: (context, state) {
+              if (state is UserListInit) {
+                return Text('User List');
+              }
+              if (state is UserListNoData) {
+                return Column(
+                  children: [
+                    Text('User List'),
+                    Text('Total: 0'),
+                  ],
+                );
+              }
+              if (state is UserListFail) {
+                return Column(
+                  children: [
+                    Text('User List'),
+                    Text('Total: UNKNOWN'),
+                  ],
+                );
+              }
+              if (state is UserListSuccess) {
+                return Column(
+                  children: [
+                    Text('User List'),
+                    Text('Total: ${state.totalCount}',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold))
+                  ],
+                );
+              }
+              return Text('Something went wrong!');
+            },
+          ),
           backgroundColor: Colors.lightBlue[100],
           actions: [
             Container(

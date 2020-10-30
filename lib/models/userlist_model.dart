@@ -6,11 +6,11 @@ class UsersList {
   UsersList({this.usersList, this.totalCount});
   factory UsersList.fromJson(Map<String, dynamic> json) {
     List<dynamic> dataJson = json['data'];
-    int totalCount = json["total_count"];
+    int total = json['total_count'];
     List<ListUser> usersList =
         dataJson.map((e) => ListUser.fromJson(e)).toList();
 
-    return UsersList(usersList: usersList, totalCount: totalCount);
+    return UsersList(usersList: usersList, totalCount: total);
   }
 
   @override
