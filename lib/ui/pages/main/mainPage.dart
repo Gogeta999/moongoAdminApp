@@ -47,24 +47,20 @@ class _MainPageState extends State<MainPage> {
             placeholder: 'Input Encrypted Code Here',
             autocorrect: false,
             textInputAction: TextInputAction.done,
-            onEditingComplete: () {
-              var userId = decrypt(inputText.text);
-              print(userId.substring(9, 12));
-              inputText.text =
-                  'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$userId ';
-              var _id = userId.substring(9, 13);
-              showToast('User ID is: ' '$_id');
-            },
+            onSubmitted: (value) => _onTapDecrypt(),
+            clearButtonMode: OverlayVisibilityMode.always,
+            // onEditingComplete: () {
+            //   var userId = decrypt(inputText.text);
+            //   print(userId.substring(9, 12));
+            //   inputText.text =
+            //       'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$userId ';
+            //   var _id = userId.substring(9, 13);
+            //   showToast('User ID is: ' '$_id');
+            // },
           ),
           _padding(20),
           CupertinoButton.filled(
-            onPressed: () {
-              var decryptText = decrypt(inputText.text);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DecryptionPage(decryptText)));
-            },
+            onPressed: () => _onTapDecrypt(),
             child: Text("Decrypt ID, Paste Correctly"),
           ),
           _padding(20),
@@ -110,5 +106,61 @@ class _MainPageState extends State<MainPage> {
     _logoutButton.add(false);
     Navigator.pushNamedAndRemoveUntil(
         context, RouteName.login, (route) => false);
+  }
+
+  _onTapDecrypt() {
+    try {
+      final String s = decrypt(inputText.text);
+      int userId = 0;
+      int commaCount = 0;
+      for (int i = 0; i < s.length; ++i) {
+        if (s[i] == ',') {
+          commaCount++;
+          if (commaCount == 3) {
+            for (int j = i + 2; j < s.length; ++j) {
+              if (s[j] == ',') break;
+              userId *= 10;
+              switch (s[j]) {
+                case '0':
+                  userId += 0;
+                  break;
+                case '1':
+                  userId += 1;
+                  break;
+                case '2':
+                  userId += 2;
+                  break;
+                case '3':
+                  userId += 3;
+                  break;
+                case '4':
+                  userId += 4;
+                  break;
+                case '5':
+                  userId += 5;
+                  break;
+                case '6':
+                  userId += 6;
+                  break;
+                case '7':
+                  userId += 7;
+                  break;
+                case '8':
+                  userId += 8;
+                  break;
+                case '9':
+                  userId += 9;
+                  break;
+              }
+            }
+          }
+        }
+      }
+      print("$userId");
+      Navigator.pushNamed(context, RouteName.userControl, arguments: userId);
+    } catch (e) {
+      print("$e");
+      showToast("Wrong Encrypted Code");
+    }
   }
 }

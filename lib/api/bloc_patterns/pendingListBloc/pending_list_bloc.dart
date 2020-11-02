@@ -86,24 +86,27 @@ class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
             isPending: globalPending,
             type: filterByType);
       } catch (error) {
-        yield PendingListFail(error: error);
+        //yield PendingListFail(error: error);
       }
-      bool hasReachedMax =
-          data.usersList.length < transactionLimit ? true : false;
-      yield data.usersList.isEmpty
-          ? currentState.copyWith(hasReachedMax: true)
-          : PendingListSuccess(
-              data: currentState.data + data.usersList,
-              totalCount: data.totalCount,
-              hasReachedMax: hasReachedMax,
-              page: nextPage);
-      for (int i = currentState.data.length;
-          i < (currentState.data + data.usersList).length;
-          i++) {
-        await Future.delayed(Duration(milliseconds: 70));
-        _listKey.currentState.insertItem(i);
+      if (data != null) {
+        bool hasReachedMax =
+            data.usersList.length < transactionLimit ? true : false;
+        yield data.usersList.isEmpty
+            ? currentState.copyWith(hasReachedMax: true)
+            : PendingListSuccess(
+                data: currentState.data + data.usersList,
+                totalCount: data.totalCount,
+                hasReachedMax: hasReachedMax,
+                page: nextPage);
+        for (int i = currentState.data.length;
+            i < (currentState.data + data.usersList).length;
+            i++) {
+          await Future.delayed(Duration(milliseconds: 70));
+          _listKey.currentState.insertItem(i);
+        }
+      } else {
+        yield currentState.copyWith(hasReachedMax: true);
       }
-      print(currentState);
     }
   }
 
