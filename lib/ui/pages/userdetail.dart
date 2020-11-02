@@ -119,6 +119,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       ],
                     ),
                   ),
+                  tileBox("Phone", state.user.profile.phone),
                   tileBox("Name", state.user.name),
                   tileBox("LastName", state.user.lastname),
                   tileBox("Email", state.user.email),
