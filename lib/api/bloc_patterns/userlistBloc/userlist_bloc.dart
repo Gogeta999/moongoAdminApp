@@ -149,7 +149,6 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         _listKey.currentState.removeItem(i, (context, animation) {
           return buildRemovedItem(context, i, animation, currentState.data[i]);
         });
-        currentState.data.removeAt(i);
       }
     }
     try {
