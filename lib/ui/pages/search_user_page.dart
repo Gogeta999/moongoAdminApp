@@ -21,7 +21,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
   final SearchUserBloc _searchUserBloc = SearchUserBloc();
   final _scrollController = ScrollController();
   final _scrollThreshold = 400.0;
-  //Timer _debounce;
+  Timer _debounce;
 
   @override
   void initState() {
@@ -53,11 +53,9 @@ class _SearchUserPageState extends State<SearchUserPage> {
             autofocus: true,
             placeholder: "Search...",
             clearButtonMode: OverlayVisibilityMode.editing,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (query) => _search(),
             onChanged: (query) {
-              // if (_debounce?.isActive ?? false) _debounce.cancel();
-              // _debounce = Timer(const Duration(milliseconds: 100), () {
-              //
-              // });
               if (query.isEmpty)
                 _searchUserBloc.add(SearchUserNotSearching());
               else
@@ -192,7 +190,10 @@ class _SearchUserPageState extends State<SearchUserPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _searchUserBloc.add(SearchUserSearchedMore());
+      if (_debounce?.isActive ?? false) _debounce.cancel();
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        _searchUserBloc.add(SearchUserSearchedMore());
+      });
     }
   }
 }

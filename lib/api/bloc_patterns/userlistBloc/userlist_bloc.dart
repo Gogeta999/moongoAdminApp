@@ -45,6 +45,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   }
 
   Stream<UserListState> _mapFetchedToState(UserListState currentState) async* {
+    /// need to fix pending
     isPending == null ? globalPending = '' : globalPending = isPending;
     if (currentState is UserListInit) {
       UsersList data;
@@ -81,24 +82,28 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
             isPending: globalPending,
             type: globalFilter);
       } catch (error) {
-        yield UserListFail(error: error);
+        //print("$error");
+        //yield UserListFail(error: error);
       }
-      bool hasReachedMax =
-          data.usersList.length < transactionLimit ? true : false;
-      yield data.usersList.isEmpty
-          ? currentState.copyWith(hasReachedMax: true)
-          : UserListSuccess(
-              data: currentState.data + data.usersList,
-              totalCount: data.totalCount,
-              hasReachedMax: hasReachedMax,
-              page: nextPage);
-      for (int i = currentState.data.length;
-          i < (currentState.data + data.usersList).length;
-          i++) {
-        await Future.delayed(Duration(milliseconds: 70));
-        _listKey.currentState.insertItem(i);
+      if (data != null) {
+        bool hasReachedMax =
+            data.usersList.length < transactionLimit ? true : false;
+        yield data.usersList.isEmpty
+            ? currentState.copyWith(hasReachedMax: true)
+            : UserListSuccess(
+                data: currentState.data + data.usersList,
+                totalCount: data.totalCount,
+                hasReachedMax: hasReachedMax,
+                page: nextPage);
+        for (int i = currentState.data.length;
+            i < (currentState.data + data.usersList).length;
+            i++) {
+          await Future.delayed(Duration(milliseconds: 70));
+          _listKey.currentState.insertItem(i);
+        }
+      } else {
+        yield currentState.copyWith(hasReachedMax: true);
       }
-      print(currentState);
     }
   }
 
