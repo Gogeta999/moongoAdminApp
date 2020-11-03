@@ -3,9 +3,11 @@ import 'package:MoonGoAdmin/api/bloc_patterns/userdetailbloc/userdetail_event.da
 import 'package:MoonGoAdmin/api/bloc_patterns/userdetailbloc/userdetail_state.dart';
 import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oktoast/oktoast.dart';
 
 class UserDetailPage extends StatefulWidget {
   final int id;
@@ -119,7 +121,17 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       ],
                     ),
                   ),
-                  tileBox("Phone", state.user.profile.phone),
+                  GestureDetector(
+                    onTap: () {
+                      FlutterClipboard.copy(state.user.profile.phone).then(
+                        (value) {
+                          showToast('Copy Success');
+                          print('copied');
+                        },
+                      );
+                    },
+                    child: tileBox("Phone", state.user.profile.phone),
+                  ),
                   tileBox("Name", state.user.name),
                   tileBox("LastName", state.user.lastname),
                   tileBox("Email", state.user.email),
