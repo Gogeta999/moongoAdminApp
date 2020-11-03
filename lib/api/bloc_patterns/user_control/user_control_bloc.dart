@@ -21,7 +21,9 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   final BehaviorSubject<ChangePartnerButtonState> changePartnerButtonSubject =
       BehaviorSubject.seeded(ChangePartnerButtonState.initial);
 
-  final productIdOrAmountSubject = BehaviorSubject.seeded(true);/// true = amount, false = product_id
+  final productIdOrAmountSubject = BehaviorSubject.seeded(true);
+
+  /// true = amount, false = product_id
   final BehaviorSubject<bool> topUpSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> withdrawSubject = BehaviorSubject.seeded(false);
 
@@ -34,9 +36,38 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     '1000 Coins'
   ];
 
+  final List<String> userTypes = <String>[
+    'CoPlayer', //1
+    'Streamer', //2
+    'Cele', //3
+    'Pro' //4
+  ];
+
+  final selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
+
+  final updateSubject = BehaviorSubject.seeded(false);
+  final rejectSubject = BehaviorSubject.seeded(false);
+
   final TextEditingController topUpAmountController = TextEditingController();
   final TextEditingController withdrawAmountController =
       TextEditingController();
+
+  void dispose() {
+    List<Future> futures = [
+      changePartnerButtonSubject.close(),
+      productIdOrAmountSubject.close(),
+      topUpSubject.close(),
+      withdrawSubject.close(),
+      selectedProductSubject.close(),
+      selectedUserTypeSubject.close(),
+      updateSubject.close(),
+      rejectSubject.close(),
+    ];
+    Future.wait(futures);
+    topUpAmountController.dispose();
+    withdrawAmountController.dispose();
+    this.close();
+  }
 
   @override
   Stream<UserControlState> mapEventToState(
@@ -50,6 +81,10 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
       yield* _mapTopUpCoinToState(currentState);
     if (event is UserControlWithdrawCoin)
       yield* _mapWithdrawCoinToState(currentState);
+    if (event is UserControlAcceptUser)
+      yield* _mapAcceptUserToState(currentState);
+    if (event is UserControlRejectUser)
+      yield* _mapRejectUserToState(currentState);
   }
 
   ///Event to state transformers
@@ -161,6 +196,52 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
       } catch (e) {
         yield UserControlWithdrawFailure(e);
         withdrawSubject.add(false);
+      }
+    }
+  }
+
+  Stream<UserControlState> _mapAcceptUserToState(
+      UserControlState currentState) async* {
+    if (currentState is UserControlFetchedSuccess) {
+      updateSubject.add(true);
+      final String userTypeName = await selectedUserTypeSubject.first;
+      final int userType = userTypes.indexOf(userTypeName) + 1;
+      try {
+        await MoonblinkRepository.updateUserType(userId, userType);
+        yield UserControlAcceptUserSuccess();
+        try {
+          User data = await MoonblinkRepository.userdetail(userId);
+          updateSubject.add(false);
+          yield UserControlFetchedSuccess(data);
+        } catch (e) {
+          updateSubject.add(false);
+          yield UserControlFetchedFailure(e);
+        }
+      } catch (e) {
+        yield UserControlAcceptUserFailure(e);
+        updateSubject.add(false);
+      }
+    }
+  }
+
+  Stream<UserControlState> _mapRejectUserToState(
+      UserControlState currentState) async* {
+    if (currentState is UserControlFetchedSuccess) {
+      rejectSubject.add(true);
+      try {
+        await MoonblinkRepository.rejectPendingUser(userId);
+        yield UserControlRejectUserSuccess();
+        try {
+          User data = await MoonblinkRepository.userdetail(userId);
+          rejectSubject.add(false);
+          yield UserControlFetchedSuccess(data);
+        } catch (e) {
+          rejectSubject.add(false);
+          yield UserControlFetchedFailure(e);
+        }
+      } catch (e) {
+        yield UserControlRejectUserFailure(e);
+        rejectSubject.add(false);
       }
     }
   }

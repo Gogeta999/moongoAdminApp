@@ -18,6 +18,7 @@ class User {
   Profile profile;
   NRCProfile nrcProfile;
   Coin coin;
+  int isPending;
 
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -35,8 +36,11 @@ class User {
         followingcount = json['following_count'],
         rating = json['rating'].toDouble(),
         profile = Profile.fromJson(json['profile']),
-        nrcProfile = json['profile_image'] != null ? NRCProfile.fromJson(json['profile_image']) : null,
-        coin = Coin.fromJson(json['coin']);
+        nrcProfile = json['profile_image'] != null
+            ? NRCProfile.fromJson(json['profile_image'])
+            : null,
+        coin = Coin.fromJson(json['coin']),
+        isPending = json['is_pending'];
 }
 
 class Profile {

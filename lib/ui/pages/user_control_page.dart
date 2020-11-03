@@ -29,6 +29,7 @@ class _UserControlPageState extends State<UserControlPage> {
 
   @override
   void dispose() {
+    _userControlBloc.dispose();
     super.dispose();
   }
 
@@ -127,6 +128,74 @@ class _UserControlPageState extends State<UserControlPage> {
     );
   }
 
+  Widget _buildManagePartnerType() {
+    return Card(
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            StreamBuilder<bool>(
+                initialData: false,
+                stream: _userControlBloc.rejectSubject,
+                builder: (context, snapshot) {
+                  if (snapshot.data) {
+                    return CupertinoButton(
+                      child: CupertinoActivityIndicator(),
+                      onPressed: () {},
+                    );
+                  }
+                  return CupertinoButton(
+                    child: Text('Reject'),
+                    onPressed: () =>
+                        _userControlBloc.add(UserControlRejectUser()),
+                  );
+                }),
+            StreamBuilder<bool>(
+                initialData: false,
+                stream: _userControlBloc.updateSubject,
+                builder: (context, snapshot) {
+                  if (snapshot.data) {
+                    return CupertinoButton(
+                      child: CupertinoActivityIndicator(),
+                      onPressed: () {},
+                    );
+                  }
+                  return CupertinoButton(
+                    child: Text('Update'),
+                    onPressed: () =>
+                        _userControlBloc.add(UserControlAcceptUser()),
+                  );
+                }),
+            StreamBuilder<String>(
+                initialData: _userControlBloc.userTypes.first,
+                stream: _userControlBloc.selectedUserTypeSubject,
+                builder: (context, snapshot) {
+                  return DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: snapshot.data,
+                      icon: Icon(Icons.keyboard_arrow_down),
+                      onChanged: (String newValue) {
+                        _userControlBloc.selectedUserTypeSubject.add(newValue);
+                      },
+                      items: _userControlBloc.userTypes
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, textAlign: TextAlign.center),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildGoToDetailPage(int id) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -196,7 +265,7 @@ class _UserControlPageState extends State<UserControlPage> {
                                   placeholder: 'TopUp Amount',
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [
-                                    WhitelistingTextInputFormatter.digitsOnly
+                                    FilteringTextInputFormatter.digitsOnly
                                   ],
                                 ),
                               );
@@ -267,7 +336,7 @@ class _UserControlPageState extends State<UserControlPage> {
                             placeholder: 'Withdraw Amount',
                             keyboardType: TextInputType.number,
                             inputFormatters: [
-                              WhitelistingTextInputFormatter.digitsOnly
+                              FilteringTextInputFormatter.digitsOnly
                             ],
                             // onChanged: (value) {
                             //   if (value.length > 0)
@@ -367,8 +436,10 @@ class _UserControlPageState extends State<UserControlPage> {
                     _buildGoToDetailPage(state.data.id),
                     _blankSpace,
                     _buildCoinControl(state.data),
+                    _blankSpace,
                     if (state.data.type != 0)
-                      _buildUpdatePartnerType(state.data.type)
+                      _buildUpdatePartnerType(state.data.type),
+                    if (state.data.isPending == 1) _buildManagePartnerType()
                   ],
                 );
               }
