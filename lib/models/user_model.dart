@@ -96,6 +96,8 @@ class Coin {
   int id;
   int userid;
   int value;
+  int topUpCoin;
+  int earningCoin;
   String createdat;
   String updatedat;
 
@@ -103,6 +105,8 @@ class Coin {
       : id = json['id'],
         userid = json['user_id'],
         value = json['value'],
+        topUpCoin = json['topup_coin'],
+        earningCoin = json['earning_coin'],
         createdat = json['created_at'],
         updatedat = json['updated_at'];
 }
