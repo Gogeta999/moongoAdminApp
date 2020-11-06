@@ -68,3 +68,31 @@ class UserControlWithdrawFailure extends UserControlState {
   @override
   List<Object> get props => [error];
 }
+
+class UserControlAcceptUserSuccess extends UserControlState {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlAcceptUserFailure extends UserControlState {
+  final error;
+
+  const UserControlAcceptUserFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class UserControlRejectUserSuccess extends UserControlState {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlRejectUserFailure extends UserControlState {
+  final error;
+
+  const UserControlRejectUserFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}

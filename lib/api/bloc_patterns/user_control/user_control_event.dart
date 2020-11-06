@@ -27,3 +27,13 @@ class UserControlWithdrawCoin extends UserControlEvent {
   @override
   List<Object> get props => [];
 }
+
+class UserControlAcceptUser extends UserControlEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlRejectUser extends UserControlEvent {
+  @override
+  List<Object> get props => [];
+}
