@@ -219,7 +219,8 @@ class _UserControlPageState extends State<UserControlPage> {
             Row(
               children: [
                 Expanded(
-                    child: Text('${user.name} has ${user.wallet.value} coins',
+                    child: Text(
+                        '${user.name} has ${user.wallet.topUpCoin} topup coins and ${user.wallet.earningCoin} earning coins',
                         textAlign: TextAlign.center)),
               ],
             ),
