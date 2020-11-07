@@ -415,6 +415,7 @@ class _PendingListTileState extends State<PendingListTile> {
     try {
       //await Future.delayed(Duration(milliseconds: 2000));
       await MoonblinkRepository.rejectPendingUser(widget.data.id, comment);
+      Navigator.pop(context);
       BlocProvider.of<PendingListBloc>(context)
           .add(PendingListRemoveUser(widget.index));
       _rejectSubject.add(false);
