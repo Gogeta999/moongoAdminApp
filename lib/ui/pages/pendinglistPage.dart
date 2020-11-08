@@ -316,7 +316,9 @@ class _PendingListTileState extends State<PendingListTile> {
                           }
                           return CupertinoButton(
                             child: Text('Reject'),
-                            onPressed: _rejectUser,
+                            onPressed: () {
+                              rejectDialog();
+                            },
                           );
                         }),
                     StreamBuilder<bool>(
@@ -359,11 +361,61 @@ class _PendingListTileState extends State<PendingListTile> {
     }
   }
 
-  _rejectUser() async {
+  //Reject Dialog
+  rejectDialog() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        TextEditingController comment = TextEditingController();
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+          title: Text("Reject this partner"),
+          content: Container(
+            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: Colors.black),
+              borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              maxLines: null,
+              controller: comment,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                hintText: "Comment",
+              ),
+            ),
+          ),
+          actions: [
+            FlatButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            FlatButton(
+              onPressed: () {
+                _rejectUser(comment.text);
+              },
+              child: Text("Reject"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _rejectUser(String comment) async {
     _rejectSubject.add(true);
     try {
       //await Future.delayed(Duration(milliseconds: 2000));
-      await MoonblinkRepository.rejectPendingUser(widget.data.id);
+      await MoonblinkRepository.rejectPendingUser(widget.data.id, comment);
+      Navigator.pop(context);
       BlocProvider.of<PendingListBloc>(context)
           .add(PendingListRemoveUser(widget.index));
       _rejectSubject.add(false);

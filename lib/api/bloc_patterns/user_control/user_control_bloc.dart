@@ -229,7 +229,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     if (currentState is UserControlFetchedSuccess) {
       rejectSubject.add(true);
       try {
-        await MoonblinkRepository.rejectPendingUser(userId);
+        await MoonblinkRepository.rejectPendingUser(userId, 'Reject');
         yield UserControlRejectUserSuccess();
         try {
           User data = await MoonblinkRepository.userdetail(userId);
