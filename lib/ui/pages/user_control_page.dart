@@ -148,10 +148,7 @@ class _UserControlPageState extends State<UserControlPage> {
                     );
                   }
                   return CupertinoButton(
-                    child: Text('Reject'),
-                    onPressed: () =>
-                        _userControlBloc.add(UserControlRejectUser()),
-                  );
+                      child: Text('Reject'), onPressed: () => _rejectDialog());
                 }),
             StreamBuilder<bool>(
                 initialData: false,
@@ -449,6 +446,55 @@ class _UserControlPageState extends State<UserControlPage> {
           ),
         ),
       ),
+    );
+  }
+
+  //Reject Dialog
+  _rejectDialog() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+          title: Text("Reject this partner"),
+          content: Container(
+            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: Colors.black),
+              borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              maxLines: null,
+              controller: _userControlBloc.rejectCommentController,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                hintText: "Comment",
+              ),
+            ),
+          ),
+          actions: [
+            FlatButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            FlatButton(
+              onPressed: () {
+                _userControlBloc.add(UserControlRejectUser());
+                Navigator.pop(context);
+              },
+              child: Text("Reject"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

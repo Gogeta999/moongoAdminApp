@@ -56,9 +56,9 @@ class MoonblinkRepository {
     return response.data;
   }
 
-  static Future rejectPendingUser(int userId) async {
+  static Future rejectPendingUser(int userId, String comment) async {
     var response = await DioUtils().put(Api.UpdateUserType + '/$userId',
-        queryParameters: {'type_status': 1});
+        queryParameters: {'type_status': 1, 'fcm_message': comment});
     return response.data;
   }
 

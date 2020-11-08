@@ -51,6 +51,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   final TextEditingController topUpAmountController = TextEditingController();
   final TextEditingController withdrawAmountController =
       TextEditingController();
+  final TextEditingController rejectCommentController = TextEditingController();
 
   void dispose() {
     List<Future> futures = [
@@ -65,6 +66,7 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     ];
     Future.wait(futures);
     topUpAmountController.dispose();
+    rejectCommentController.dispose();
     withdrawAmountController.dispose();
     this.close();
   }
@@ -229,7 +231,8 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     if (currentState is UserControlFetchedSuccess) {
       rejectSubject.add(true);
       try {
-        await MoonblinkRepository.rejectPendingUser(userId);
+        await MoonblinkRepository.rejectPendingUser(
+            userId, rejectCommentController.text);
         yield UserControlRejectUserSuccess();
         try {
           User data = await MoonblinkRepository.userdetail(userId);
