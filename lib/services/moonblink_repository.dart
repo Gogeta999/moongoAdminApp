@@ -58,11 +58,12 @@ class MoonblinkRepository {
 
   static Future<List<Transaction>> getUserTransactionList(String startDate,
       String endDate, String type, int userId, int limit, int page) async {
+    String fType = type == 'topup' ? 'top_up' : type;
     final response =
         await DioUtils().get(Api.AdminTransaction, queryParameters: {
       'start_date': startDate,
       'end_date': endDate,
-      'type': type,
+      'type': fType,
       'user_id': userId,
       'limit': limit,
       'page': page,
@@ -74,11 +75,12 @@ class MoonblinkRepository {
 
   static Future<List<Transaction>> getAllTransactionList(String startDate,
       String endDate, String type, int limit, int page) async {
+    String fType = type == 'topup' ? 'top_up' : type;
     final response =
         await DioUtils().get(Api.AdminTransaction, queryParameters: {
       'start_date': startDate,
       'end_date': endDate,
-      'type': type,
+      'type': fType,
       'limit': limit,
       'page': page,
     });
