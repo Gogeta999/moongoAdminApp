@@ -15,6 +15,7 @@ class RouteName {
   static const String search = 'search';
   static const String userControl = 'userControl';
   static const String userDetail = 'userDetail';
+  static const String userTransactions = 'userTransactions';
 }
 
 class Router {
@@ -30,9 +31,11 @@ class Router {
       case RouteName.search:
         return CupertinoPageRoute(builder: (_) => SearchUserPage());
       case RouteName.userControl:
-        return CupertinoPageRoute(builder: (_) => UserControlPage(userId: settings.arguments));
+        return CupertinoPageRoute(
+            builder: (_) => UserControlPage(userId: settings.arguments));
       case RouteName.userDetail:
-        return CupertinoPageRoute(builder: (_) => UserDetailPage(id: settings.arguments));
+        return CupertinoPageRoute(
+            builder: (_) => UserDetailPage(id: settings.arguments));
       default:
         return CupertinoPageRoute(
             builder: (_) => Scaffold(

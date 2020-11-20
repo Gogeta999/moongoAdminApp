@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
-import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
@@ -13,15 +12,19 @@ part 'pending_list_state.dart';
 const int transactionLimit = 10;
 
 class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
-  PendingListBloc(this._listKey, this.buildRemovedItem,
-      {this.isPending, this.filterByType})
+  PendingListBloc(this._listKey, this.buildRemovedItem)
       : super(PendingListInit());
-  final isPending;
-  final filterByType;
 
+  final genderSubject = BehaviorSubject.seeded('ALL');
+  final userGenders = <String>['ALL', 'Male', 'Female'];
   final GlobalKey<AnimatedListState> _listKey;
   final Widget Function(BuildContext context, int index,
       Animation<double> animation, ListUser data) buildRemovedItem;
+
+  void dispose() {
+    genderSubject.close();
+    this.close();
+  }
 
   @override
   Stream<Transition<PendingListEvent, PendingListState>> transformEvents(
@@ -50,45 +53,32 @@ class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
 
   Stream<PendingListState> _mapFetchedToState(
       PendingListState currentState) async* {
-    isPending == null ? globalPending = '' : globalPending = isPending;
     if (currentState is PendingListInit) {
-      UsersList data;
       try {
-        data = await _fetchPendingList(
-            limit: transactionLimit,
-            page: 1,
-            isPending: globalPending,
-            type: filterByType);
-        // print(data);
+        final gender = await genderSubject.first;
+        UsersList data = await MoonblinkRepository.getPendingUserList(
+            transactionLimit, 1, 1, gender);
+        bool hasReachedMax =
+            data.usersList.length < transactionLimit ? true : false;
+        yield PendingListSuccess(
+            data: data.usersList,
+            totalCount: data.totalCount,
+            hasReachedMax: hasReachedMax,
+            page: 1);
+        for (int i = 0; i < data.usersList.length; i++) {
+          await Future.delayed(Duration(milliseconds: 70));
+          _listKey.currentState.insertItem(i);
+        }
       } catch (_) {
-        yield PendingListNoData();
-        return;
-      }
-      bool hasReachedMax =
-          data.usersList.length < transactionLimit ? true : false;
-      yield PendingListSuccess(
-          data: data.usersList,
-          totalCount: data.totalCount,
-          hasReachedMax: hasReachedMax,
-          page: 1);
-      for (int i = 0; i < data.usersList.length; i++) {
-        await Future.delayed(Duration(milliseconds: 70));
-        _listKey.currentState.insertItem(i);
+        yield PendingListFail();
       }
     }
     if (currentState is PendingListSuccess) {
-      final nextPage = currentState.page + 1;
-      UsersList data;
       try {
-        data = await _fetchPendingList(
-            limit: transactionLimit,
-            page: nextPage,
-            isPending: globalPending,
-            type: filterByType);
-      } catch (error) {
-        //yield PendingListFail(error: error);
-      }
-      if (data != null) {
+        final nextPage = currentState.page + 1;
+        final gender = await genderSubject.first;
+        UsersList data = await MoonblinkRepository.getPendingUserList(
+            transactionLimit, nextPage, 1, gender);
         bool hasReachedMax =
             data.usersList.length < transactionLimit ? true : false;
         yield data.usersList.isEmpty
@@ -104,86 +94,79 @@ class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
           await Future.delayed(Duration(milliseconds: 70));
           _listKey.currentState.insertItem(i);
         }
-      } else {
-        yield currentState.copyWith(hasReachedMax: true);
+      } catch (error) {
+        yield currentState.copyWith();
       }
     }
   }
 
   Stream<PendingListState> _mapRefreshedToState(
       PendingListState currentState) async* {
-    isPending == null ? globalPending = '' : globalPending = isPending;
-    UsersList data;
-    print('Refreshing');
-    if (currentState is PendingListSuccess) {
-      for (int i = currentState.data.length - 1; i >= 0; --i) {
-        await Future.delayed(Duration(milliseconds: 10));
-        _listKey.currentState.removeItem(i, (context, animation) {
-          return buildRemovedItem(context, i, animation, currentState.data[i]);
-        } /*, duration: Duration(milliseconds: 70)*/);
-      }
-    }
-    try {
-      data = await _fetchPendingList(
-          limit: transactionLimit,
-          page: 1,
-          isPending: globalPending,
-          type: filterByType);
-    } catch (error) {
-      yield PendingListFail(error: error);
-    }
-    bool hasReachedMax =
-        data.usersList.length < transactionLimit ? true : false;
-    yield data.usersList.isEmpty
-        ? PendingListNoData()
-        : PendingListSuccess(
-            data: data.usersList,
-            totalCount: data.totalCount,
-            hasReachedMax: hasReachedMax,
-            page: 1);
-    for (int i = 0; i < data.usersList.length; i++) {
-      await Future.delayed(Duration(milliseconds: 70));
-      _listKey.currentState.insertItem(i);
-    }
-  }
-
-  Stream<PendingListState> _mapUpdatedToState(
-      PendingListState currentState) async* {
-    isPending == null ? globalPending = '' : globalPending = isPending;
-    UsersList data;
-    print('Refreshing');
     if (currentState is PendingListSuccess) {
       for (int i = currentState.data.length - 1; i >= 0; --i) {
         await Future.delayed(Duration(milliseconds: 10));
         _listKey.currentState.removeItem(i, (context, animation) {
           return buildRemovedItem(context, i, animation, currentState.data[i]);
         });
-        currentState.data.removeAt(i);
       }
     }
     try {
-      data = await _fetchPendingList(
-          limit: transactionLimit,
-          page: 1,
-          isPending: globalPending,
-          type: filterByType);
-      print(
-          'limit: $transactionLimit, ispending: $globalPending,typeis $globalFilter');
+      final gender = await genderSubject.first;
+      UsersList data = await MoonblinkRepository.getPendingUserList(
+          transactionLimit, 1, 1, gender);
+      bool hasReachedMax = data.usersList.length < transactionLimit;
+      yield data.usersList.isEmpty
+          ? PendingListSuccess(
+              data: [],
+              totalCount: data.totalCount,
+              hasReachedMax: hasReachedMax,
+              page: 1)
+          : PendingListSuccess(
+              data: data.usersList,
+              totalCount: data.totalCount,
+              hasReachedMax: hasReachedMax,
+              page: 1);
+      for (int i = 0; i < data.usersList.length; i++) {
+        await Future.delayed(Duration(milliseconds: 70));
+        _listKey.currentState.insertItem(i);
+      }
     } catch (error) {
       yield PendingListFail(error: error);
     }
-    bool hasReachedMax =
-        data.usersList.length < transactionLimit ? true : false;
-    yield data.usersList.isEmpty
-        ? PendingListNoData()
-        : PendingListSuccess(
-            data: data.usersList,
-            totalCount: data.totalCount,
-            hasReachedMax: hasReachedMax,
-            page: 1);
-    for (int i = 0; i < data.usersList.length; i++) {
-      await Future.delayed(Duration(milliseconds: 70));
-      _listKey.currentState.insertItem(i);
+  }
+
+  Stream<PendingListState> _mapUpdatedToState(
+      PendingListState currentState) async* {
+    if (currentState is PendingListSuccess) {
+      for (int i = currentState.data.length - 1; i >= 0; --i) {
+        await Future.delayed(Duration(milliseconds: 10));
+        _listKey.currentState.removeItem(i, (context, animation) {
+          return buildRemovedItem(context, i, animation, currentState.data[i]);
+        });
+      }
+    }
+    try {
+      final gender = await genderSubject.first;
+      UsersList data = await MoonblinkRepository.getPendingUserList(
+          transactionLimit, 1, 1, gender);
+      bool hasReachedMax = data.usersList.length < transactionLimit;
+      yield data.usersList.isEmpty
+          ? PendingListSuccess(
+              data: [],
+              totalCount: data.totalCount,
+              hasReachedMax: hasReachedMax,
+              page: 1)
+          : PendingListSuccess(
+              data: data.usersList,
+              totalCount: data.totalCount,
+              hasReachedMax: hasReachedMax,
+              page: 1);
+      for (int i = 0; i < data.usersList.length; i++) {
+        await Future.delayed(Duration(milliseconds: 70));
+        _listKey.currentState.insertItem(i);
+      }
+    } catch (error) {
+      yield PendingListFail(error: error);
     }
   }
 
@@ -205,11 +188,4 @@ class PendingListBloc extends Bloc<PendingListEvent, PendingListState> {
 
   bool _hasReachedMax(PendingListState state) =>
       state is PendingListSuccess && state.hasReachedMax;
-
-  Future<UsersList> _fetchPendingList(
-      {String isPending, String type, int limit, int page}) async {
-    UsersList usersList = await MoonblinkRepository.userList(limit, page,
-        isPending: isPending, type: type);
-    return usersList;
-  }
 }

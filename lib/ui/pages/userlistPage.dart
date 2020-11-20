@@ -5,7 +5,6 @@ import 'package:MoonGoAdmin/api/bloc_patterns/userlistBloc/userlist_event.dart';
 import 'package:MoonGoAdmin/api/bloc_patterns/userlistBloc/userlist_state.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
-import 'package:MoonGoAdmin/ui/helper/filter_helper.dart';
 import 'package:MoonGoAdmin/ui/helper/image_helper.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,17 +20,24 @@ class UserListPage extends StatefulWidget {
 class _UserListPageState extends State<UserListPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final _scrollController = ScrollController();
-  final _scrollThreshold = 600.0;
+  final _scrollThreshold = 200.0;
   Completer<void> _refreshCompleter;
-  var _userList;
-  String dropdownValue = '';
+  UserListBloc _userListBloc;
 
   @override
   void initState() {
-    _userList = UserListBloc(_listKey, _buildRemoveItem);
+    _userListBloc = UserListBloc(_listKey, _buildRemoveItem);
+    _userListBloc.add(UserListFetched());
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _userListBloc.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Widget _buildItem(BuildContext context, int index,
@@ -68,103 +74,37 @@ class _UserListPageState extends State<UserListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var filterName;
-
     return BlocProvider<UserListBloc>(
-      create: (_) => _userList..add(UserListFetched()),
+      create: (_) => _userListBloc,
       child: Scaffold(
         appBar: AppBar(
-          title: BlocBuilder<UserListBloc, UserListState>(
-            builder: (context, state) {
-              if (state is UserListInit) {
-                return Text('User List');
-              }
-              if (state is UserListNoData) {
-                return Column(
-                  children: [
-                    Text('User List'),
-                    Text('Total: 0'),
-                  ],
-                );
-              }
-              if (state is UserListFail) {
-                return Column(
-                  children: [
-                    Text('User List'),
-                    Text('Total: UNKNOWN'),
-                  ],
-                );
-              }
-              if (state is UserListSuccess) {
-                return Column(
-                  children: [
-                    Text('User List'),
-                    Text('Total: ${state.totalCount}',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold))
-                  ],
-                );
-              }
-              return Text('Something went wrong!');
-            },
-          ),
-          backgroundColor: Colors.lightBlue[100],
-          actions: [
-            Container(
-              width: 100,
-              color: Colors.white,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  onChanged: (String newValue) {
-                    setState(() {
-                      dropdownValue = newValue;
-                      globalFilter = dropdownValue;
-                    });
-                    print('GlobalFilter Type : $globalFilter');
-                    _onUpdated();
-                  },
-                  items: <String>[
-                    '',
-                    '0',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    switch (value) {
-                      case tAll:
-                        filterName = 'All';
-                        break;
-                      case tNormal:
-                        filterName = 'Normal';
-                        break;
-                      case tCoPlayer:
-                        filterName = 'CoPlayer';
-                        break;
-                      case tCele:
-                        filterName = 'Cele';
-                        break;
-                      case tStreamer:
-                        filterName = 'Streamer';
-                        break;
-                      case tPro:
-                        filterName = 'Pro';
-                        break;
-                      default:
-                        filterName = 'Null Error';
-                        break;
-                    }
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(filterName),
-                    );
-                  }).toList(),
-                ),
-              ),
+            title: BlocBuilder<UserListBloc, UserListState>(
+              builder: (context, state) {
+                if (state is UserListInit) {
+                  return Text('User List');
+                }
+                if (state is UserListFail) {
+                  return Column(
+                    children: [
+                      Text('User List'),
+                      Text('Total: UNKNOWN'),
+                    ],
+                  );
+                }
+                if (state is UserListSuccess) {
+                  return Column(
+                    children: [
+                      Text('User List'),
+                      Text('Total: ${state.totalCount}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold))
+                    ],
+                  );
+                }
+                return Text('Something went wrong!');
+              },
             ),
-          ],
-        ),
+            backgroundColor: Colors.lightBlue[100]),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
           child: BlocConsumer<UserListBloc, UserListState>(
@@ -179,39 +119,113 @@ class _UserListPageState extends State<UserListPage> {
               }
             },
             builder: (BuildContext context, state) {
-              print(state);
               if (state is UserListInit) {
                 return Center(child: CupertinoActivityIndicator());
               }
               if (state is UserListFail) {
                 return Center(
-                  child: Text(state.error),
-                );
-              }
-              if (state is UserListNoData) {
-                return Center(
-                  child: Text("Opps,. No data ah"),
+                  child: Text(state.error.toString()),
                 );
               }
               if (state is UserListSuccess) {
-                return AnimatedList(
-                  physics: ClampingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics()),
-                  shrinkWrap: true,
-                  key: _listKey,
-                  controller: _scrollController,
-                  itemBuilder: (BuildContext context, int index, animation) {
-                    return Column(
-                      children: <Widget>[
-                        _buildItem(
-                            context, index, animation, state.data[index]),
-                        Divider(),
-                        if (state.hasReachedMax == false &&
-                            index >= state.data.length - 1)
-                          Center(child: CupertinoActivityIndicator())
+                if (state.data.isEmpty) {
+                  return Center(child: Text('UserList Empty'));
+                }
+                return Column(
+                  children: [
+                    SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ///Type
+                        Column(
+                          children: [
+                            Text('User Type'),
+                            StreamBuilder<String>(
+                              initialData: 'All',
+                              stream: _userListBloc.typeSubject,
+                              builder: (context, snapshot) {
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: snapshot.data,
+                                    icon: Icon(Icons.keyboard_arrow_down),
+                                    onChanged: (String newValue) {
+                                      _userListBloc.typeSubject.add(newValue);
+                                      _userListBloc.add(UserListUpdated());
+                                    },
+                                    items: _userListBloc.userTypes
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value,
+                                            textAlign: TextAlign.center),
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        ///Gender
+                        Column(
+                          children: [
+                            Text('User Gender'),
+                            StreamBuilder<String>(
+                              initialData: '',
+                              stream: _userListBloc.genderSubject,
+                              builder: (context, snapshot) {
+                                return DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: snapshot.data,
+                                    icon: Icon(Icons.keyboard_arrow_down),
+                                    onChanged: (String newValue) {
+                                      _userListBloc.genderSubject.add(newValue);
+                                      _userListBloc.add(UserListUpdated());
+                                    },
+                                    items: _userListBloc.userGenders
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                            value.isEmpty ? 'All' : value,
+                                            textAlign: TextAlign.center),
+                                      );
+                                    }).toList(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ],
-                    );
-                  },
+                    ),
+                    SizedBox(height: 5),
+                    Expanded(
+                      child: AnimatedList(
+                        key: _listKey,
+                        controller: _scrollController,
+                        physics: ClampingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
+                        itemBuilder:
+                            (BuildContext context, int index, animation) {
+                          return Column(
+                            children: <Widget>[
+                              _buildItem(
+                                  context, index, animation, state.data[index]),
+                              Divider(),
+                              if (state.hasReachedMax == false &&
+                                  index >= state.data.length - 1)
+                                Center(child: CupertinoActivityIndicator())
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 );
               }
               return Center(
@@ -228,18 +242,13 @@ class _UserListPageState extends State<UserListPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _userList.add(UserListFetched());
+      _userListBloc.add(UserListFetched());
     }
   }
 
   Future<void> _onRefresh() {
-    _userList.add(UserListRefresh());
+    _userListBloc.add(UserListRefresh());
     return _refreshCompleter.future;
-  }
-
-  void _onUpdated() {
-    _userList.add(UserListUpdated());
-    return _userList;
   }
 }
 
