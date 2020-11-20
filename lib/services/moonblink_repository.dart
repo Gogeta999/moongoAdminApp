@@ -2,6 +2,7 @@ import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
+import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
@@ -33,21 +34,57 @@ class MoonblinkRepository {
     return searchUserModels;
   }
 
-  //User List
-  static Future userList(
-    int limit,
-    int page, {
-    String isPending,
-    String type,
-  }) async {
+  static Future<UsersList> getUserList(
+      int limit, int page, int type, String gender) async {
     var response = await DioUtils().get(Api.Admin, queryParameters: {
+      'gender': gender,
       'type': type,
       'limit': limit,
       'page': page,
-      'is_pending': isPending
     });
-
     return UsersList.fromJson(response.data);
+  }
+
+  static Future<UsersList> getPendingUserList(
+      int limit, int page, int pending, String gender) async {
+    var response = await DioUtils().get(Api.Admin, queryParameters: {
+      'gender': gender,
+      'is_pending': pending,
+      'limit': limit,
+      'page': page,
+    });
+    return UsersList.fromJson(response.data);
+  }
+
+  static Future<List<Transaction>> getUserTransactionList(String startDate,
+      String endDate, String type, int userId, int limit, int page) async {
+    final response =
+        await DioUtils().get(Api.AdminTransaction, queryParameters: {
+      'start_date': startDate,
+      'end_date': endDate,
+      'type': type,
+      'user_id': userId,
+      'limit': limit,
+      'page': page,
+    });
+    return response.data['data']
+        .map<Transaction>((e) => Transaction.fromJson(e))
+        .toList();
+  }
+
+  static Future<List<Transaction>> getAllTransactionList(String startDate,
+      String endDate, String type, int limit, int page) async {
+    final response =
+        await DioUtils().get(Api.AdminTransaction, queryParameters: {
+      'start_date': startDate,
+      'end_date': endDate,
+      'type': type,
+      'limit': limit,
+      'page': page,
+    });
+    return response.data['data']
+        .map<Transaction>((e) => Transaction.fromJson(e))
+        .toList();
   }
 
   static Future updateUserType(int userId, int type) async {
