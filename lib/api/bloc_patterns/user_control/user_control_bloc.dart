@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
+import 'package:MoonGoAdmin/ui/utils/formatter.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:rxdart/rxdart.dart';
 
 part 'user_control_event.dart';
@@ -21,7 +24,9 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   final BehaviorSubject<ChangePartnerButtonState> changePartnerButtonSubject =
       BehaviorSubject.seeded(ChangePartnerButtonState.initial);
 
-  final productIdOrAmountSubject = BehaviorSubject.seeded(true);/// true = amount, false = product_id
+  final productIdOrAmountSubject = BehaviorSubject.seeded(true);
+
+  /// true = amount, false = product_id
   final BehaviorSubject<bool> topUpSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> withdrawSubject = BehaviorSubject.seeded(false);
 
@@ -34,9 +39,68 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     '1000 Coins'
   ];
 
+  final List<String> userTypes = <String>[
+    'CoPlayer', //1
+    'Streamer', //2
+    'Cele', //3
+    'Pro' //4
+  ];
+
+  final List<String> transactionTypes = <String>[
+    'Transaction Type',
+    'TopUp',
+    'Withdraw',
+    'Booking'
+  ];
+
+  final selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
+
+  final updateSubject = BehaviorSubject.seeded(false);
+  final rejectSubject = BehaviorSubject.seeded(false);
+  final startDateSubject =
+      BehaviorSubject.seeded(Formatter.yyyymmdd(DateTime.now()));
+  final endDateSubject =
+      BehaviorSubject.seeded(Formatter.yyyymmdd(DateTime.now()));
+  final typeSubject = BehaviorSubject.seeded('Transaction Type');
+  final transactionsSubject = BehaviorSubject<List<Transaction>>.seeded(null);
+  final querySubject = BehaviorSubject.seeded(false);
+  final _pageSubject = BehaviorSubject.seeded(1);
+  final scrollController = ScrollController();
+  final _scrollThreshold = 200.0;
+  Timer _debounce;
+  final hasReachedMax = BehaviorSubject.seeded(false);
+
   final TextEditingController topUpAmountController = TextEditingController();
   final TextEditingController withdrawAmountController =
       TextEditingController();
+  final TextEditingController rejectCommentController = TextEditingController();
+
+  void dispose() {
+    List<Future> futures = [
+      changePartnerButtonSubject.close(),
+      productIdOrAmountSubject.close(),
+      topUpSubject.close(),
+      withdrawSubject.close(),
+      selectedProductSubject.close(),
+      selectedUserTypeSubject.close(),
+      updateSubject.close(),
+      rejectSubject.close(),
+      startDateSubject.close(),
+      endDateSubject.close(),
+      transactionsSubject.close(),
+      typeSubject.close(),
+      querySubject.close(),
+      _pageSubject.close(),
+      hasReachedMax.close(),
+    ];
+    _debounce?.cancel();
+    Future.wait(futures);
+    topUpAmountController.dispose();
+    rejectCommentController.dispose();
+    withdrawAmountController.dispose();
+    scrollController.dispose();
+    this.close();
+  }
 
   @override
   Stream<UserControlState> mapEventToState(
@@ -50,6 +114,10 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
       yield* _mapTopUpCoinToState(currentState);
     if (event is UserControlWithdrawCoin)
       yield* _mapWithdrawCoinToState(currentState);
+    if (event is UserControlAcceptUser)
+      yield* _mapAcceptUserToState(currentState);
+    if (event is UserControlRejectUser)
+      yield* _mapRejectUserToState(currentState);
   }
 
   ///Event to state transformers
@@ -165,6 +233,53 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     }
   }
 
+  Stream<UserControlState> _mapAcceptUserToState(
+      UserControlState currentState) async* {
+    if (currentState is UserControlFetchedSuccess) {
+      updateSubject.add(true);
+      final String userTypeName = await selectedUserTypeSubject.first;
+      final int userType = userTypes.indexOf(userTypeName) + 1;
+      try {
+        await MoonblinkRepository.updateUserType(userId, userType);
+        yield UserControlAcceptUserSuccess();
+        try {
+          User data = await MoonblinkRepository.userdetail(userId);
+          updateSubject.add(false);
+          yield UserControlFetchedSuccess(data);
+        } catch (e) {
+          updateSubject.add(false);
+          yield UserControlFetchedFailure(e);
+        }
+      } catch (e) {
+        yield UserControlAcceptUserFailure(e);
+        updateSubject.add(false);
+      }
+    }
+  }
+
+  Stream<UserControlState> _mapRejectUserToState(
+      UserControlState currentState) async* {
+    if (currentState is UserControlFetchedSuccess) {
+      rejectSubject.add(true);
+      try {
+        await MoonblinkRepository.rejectPendingUser(
+            userId, rejectCommentController.text);
+        yield UserControlRejectUserSuccess();
+        try {
+          User data = await MoonblinkRepository.userdetail(userId);
+          rejectSubject.add(false);
+          yield UserControlFetchedSuccess(data);
+        } catch (e) {
+          rejectSubject.add(false);
+          yield UserControlFetchedFailure(e);
+        }
+      } catch (e) {
+        yield UserControlRejectUserFailure(e);
+        rejectSubject.add(false);
+      }
+    }
+  }
+
   ///Private methods
   Stream<UserControlState> _changePartnerType(int type) async* {
     try {
@@ -198,6 +313,70 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
         yield UserControlTopUpFailure(e);
         topUpSubject.add(false);
       }
+    }
+  }
+
+  void queryTransaction() async {
+    querySubject.add(true);
+    final startDate = await startDateSubject.first;
+    final endDate = await endDateSubject.first;
+    final type = (await typeSubject.first).toLowerCase();
+    if (type == transactionTypes.first.toLowerCase()) {
+      showToast('Please select a transaction type');
+      querySubject.add(false);
+      return;
+    }
+    final limit = 10;
+    final page = 1;
+    print("$startDate - $endDate - $type - $limit - $page");
+    MoonblinkRepository.getUserTransactionList(
+            startDate, endDate, type, userId, limit, page)
+        .then((transactions) {
+      transactionsSubject.add(transactions);
+      hasReachedMax.add(false);
+      _pageSubject.add(1);
+      querySubject.add(false);
+    }, onError: (e) {
+      showToast(e.toString());
+      hasReachedMax.add(false);
+      transactionsSubject.add([]);
+      querySubject.add(false);
+    });
+  }
+
+  void queryTransactionMore() async {
+    if (await hasReachedMax.first) return;
+    final maxScroll = scrollController.position.maxScrollExtent;
+    final currentScroll = scrollController.position.pixels;
+    if (maxScroll - currentScroll <= _scrollThreshold) {
+      if (_debounce?.isActive ?? false) _debounce.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () async {
+        querySubject.add(true);
+        final startDate = await startDateSubject.first;
+        final endDate = await endDateSubject.first;
+        final type = (await typeSubject.first).toLowerCase();
+        if (type.isEmpty || type == null) {
+          showToast('Please select a transaction type');
+          querySubject.add(false);
+          return;
+        }
+        final limit = 10;
+        final nextPage = (await _pageSubject.first) + 1;
+        final previous = await transactionsSubject.first;
+        print("$startDate - $endDate - $type - $limit - $nextPage");
+        MoonblinkRepository.getUserTransactionList(
+                startDate, endDate, type, userId, limit, nextPage)
+            .then((transactions) {
+          transactionsSubject.add(previous + transactions);
+          _pageSubject.add(nextPage);
+          querySubject.add(false);
+          hasReachedMax.add(transactions.length < limit);
+        }, onError: (e) {
+          showToast(e.toString());
+          hasReachedMax.add(true);
+          querySubject.add(false);
+        });
+      });
     }
   }
 }

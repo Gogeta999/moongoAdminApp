@@ -18,11 +18,6 @@ class PendingListFail extends PendingListState {
   List<Object> get props => [error];
 }
 
-class PendingListNoData extends PendingListState {
-  @override
-  List<Object> get props => [];
-}
-
 class PendingListSuccess extends PendingListState {
   final List<ListUser> data;
   final int totalCount;

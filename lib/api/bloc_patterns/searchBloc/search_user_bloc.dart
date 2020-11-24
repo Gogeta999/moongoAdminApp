@@ -20,14 +20,6 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
 
   List<String> _searchHistories =
       StorageManager.sharedPreferences.getStringList(kSearchHistory) ?? [];
-  bool _isFetching = false;
-
-  @override
-  Stream<Transition<SearchUserEvent, SearchUserState>> transformEvents(
-      Stream<SearchUserEvent> events, transitionFn) {
-    return super.transformEvents(
-        events.debounceTime(const Duration(milliseconds: 500)), transitionFn);
-  }
 
   @override
   Stream<SearchUserState> mapEventToState(
@@ -65,9 +57,7 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
   Stream<SearchUserState> _mapSearchedMoreToState(
       SearchUserState currentState) async* {
     if (currentState is SearchUserSearchingSuccess &&
-        !currentState.hasReachedMax &&
-        !_isFetching) {
-      _isFetching = true;
+        !currentState.hasReachedMax) {
       try {
         int nextPage = currentState.page + 1;
         String query = currentState.query;
@@ -79,7 +69,6 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
         yield SearchUserSearchingSuccess(currentState.data, currentState.page,
             true, currentState.query);
       }
-      _isFetching = false;
     }
   }
 

@@ -23,15 +23,22 @@ class _PendingListPageState extends State<PendingListPage> {
   final _scrollController = ScrollController();
   final _scrollThreshold = 600.0;
   Completer<void> _refreshCompleter;
-  var _pendingListBloc;
+  PendingListBloc _pendingListBloc;
 
   @override
   void initState() {
-    _pendingListBloc =
-        PendingListBloc(_listKey, _buildRemoveItem, isPending: '1');
+    _pendingListBloc = PendingListBloc(_listKey, _buildRemoveItem);
+    _pendingListBloc.add(PendingListFetched());
     _scrollController.addListener(_onScroll);
     _refreshCompleter = Completer<void>();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pendingListBloc.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Widget _buildItem(BuildContext context, int index,
@@ -75,21 +82,13 @@ class _PendingListPageState extends State<PendingListPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PendingListBloc>(
-      create: (_) => _pendingListBloc..add(PendingListFetched()),
+      create: (_) => _pendingListBloc,
       child: Scaffold(
         appBar: AppBar(
           title: BlocBuilder<PendingListBloc, PendingListState>(
             builder: (context, state) {
               if (state is PendingListInit) {
                 return Text('Pending List');
-              }
-              if (state is PendingListNoData) {
-                return Column(
-                  children: [
-                    Text('Pending List'),
-                    Text('Total: 0'),
-                  ],
-                );
               }
               if (state is PendingListFail) {
                 return Column(
@@ -113,6 +112,35 @@ class _PendingListPageState extends State<PendingListPage> {
             },
           ),
           backgroundColor: Colors.lightBlue[100],
+          actions: [
+            Container(
+              color: Colors.white,
+              child: StreamBuilder<String>(
+                initialData: 'ALL',
+                stream: _pendingListBloc.genderSubject,
+                builder: (context, snapshot) {
+                  return DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: snapshot.data,
+                      icon: Icon(Icons.keyboard_arrow_down),
+                      onChanged: (String newValue) {
+                        _pendingListBloc.genderSubject.add(newValue);
+                        _pendingListBloc.add(PendingListUpdated());
+                      },
+                      items: _pendingListBloc.userGenders
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value == 'ALL' ? 'All' : value,
+                              textAlign: TextAlign.center),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
         body: RefreshIndicator(
           onRefresh: _onRefresh,
@@ -128,21 +156,18 @@ class _PendingListPageState extends State<PendingListPage> {
               }
             },
             builder: (BuildContext context, state) {
-              print(state);
               if (state is PendingListInit) {
                 return Center(child: CupertinoActivityIndicator());
               }
               if (state is PendingListFail) {
                 return Center(
-                  child: Text(state.error),
-                );
-              }
-              if (state is PendingListNoData) {
-                return Center(
-                  child: Text("Opps,. No data ah"),
+                  child: Text(state.error.toString()),
                 );
               }
               if (state is PendingListSuccess) {
+                if (state.data.isEmpty) {
+                  return Center(child: Text('No Pending User'));
+                }
                 return AnimatedList(
                   physics: ClampingScrollPhysics(
                       parent: AlwaysScrollableScrollPhysics()),
@@ -316,7 +341,9 @@ class _PendingListTileState extends State<PendingListTile> {
                           }
                           return CupertinoButton(
                             child: Text('Reject'),
-                            onPressed: _rejectUser,
+                            onPressed: () {
+                              rejectDialog();
+                            },
                           );
                         }),
                     StreamBuilder<bool>(
@@ -359,11 +386,61 @@ class _PendingListTileState extends State<PendingListTile> {
     }
   }
 
-  _rejectUser() async {
+  //Reject Dialog
+  rejectDialog() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        TextEditingController comment = TextEditingController();
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+          title: Text("Reject this partner"),
+          content: Container(
+            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: Colors.black),
+              borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              maxLines: null,
+              controller: comment,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                hintText: "Comment",
+              ),
+            ),
+          ),
+          actions: [
+            FlatButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            FlatButton(
+              onPressed: () {
+                _rejectUser(comment.text);
+              },
+              child: Text("Reject"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _rejectUser(String comment) async {
     _rejectSubject.add(true);
     try {
       //await Future.delayed(Duration(milliseconds: 2000));
-      await MoonblinkRepository.rejectPendingUser(widget.data.id);
+      await MoonblinkRepository.rejectPendingUser(widget.data.id, comment);
+      Navigator.pop(context);
       BlocProvider.of<PendingListBloc>(context)
           .add(PendingListRemoveUser(widget.index));
       _rejectSubject.add(false);

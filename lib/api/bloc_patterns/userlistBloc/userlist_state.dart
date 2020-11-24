@@ -19,11 +19,6 @@ class UserListFail extends UserListState {
   List<Object> get props => [error];
 }
 
-class UserListNoData extends UserListState {
-  @override
-  List<Object> get props => [];
-}
-
 class UserListSuccess extends UserListState {
   final List<ListUser> data;
   final int totalCount;
@@ -48,5 +43,5 @@ class UserListSuccess extends UserListState {
 
   @override
   String toString() =>
-      'BlockedUsersSuccess: ${data.length}, hasReachedMax: $hasReachedMax';
+      'UsersListSuccess: ${data.length}, hasReachedMax: $hasReachedMax';
 }
