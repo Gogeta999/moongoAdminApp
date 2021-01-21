@@ -23,7 +23,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     'CoPlayer', //1
     'Streamer', //2
     'Cele', //3
-    'Pro' //4
+    'Pro', //4
+    'VIP', // 5
   ];
 
   final List<String> userGenders = <String>['', 'Male', 'Female'];
@@ -201,6 +202,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         return 3;
       case 'Pro':
         return 4;
+      case 'VIP':
+        return 5;
       default:
         return -1;
     }

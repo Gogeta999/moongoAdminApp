@@ -1,10 +1,8 @@
-import 'package:MoonGoAdmin/api/bloc_patterns/user_control/user_control_bloc.dart';
 import 'package:MoonGoAdmin/api/bloc_patterns/user_transactions/bloc/user_transactions_bloc.dart';
 import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/ui/utils/formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class UserTransactionsPage extends StatefulWidget {

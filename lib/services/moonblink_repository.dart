@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
+import 'package:MoonGoAdmin/models/payment.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
@@ -123,6 +124,29 @@ class MoonblinkRepository {
     print(userid);
     var response = await DioUtils().get(Api.Admindetail + userid.toString());
     return User.fromJson(response.data);
+  }
+
+  //get payments
+  static Future<List<Payment>> getPayments(
+      String endDate, String startDate, int status, int limit, int page) async {
+    final response = await DioUtils()
+        .get("moonblink/api/v1/admin/payment", queryParameters: {
+      'end_date': endDate,
+      'start_date': startDate,
+      'status': status,
+      'limit': limit,
+      'page': page
+    });
+    return response.data['data']
+        .map<Payment>((e) => Payment.fromJson(e))
+        .toList();
+  }
+
+  static Future<Payment> changePaymentStatus(int paymentId, int status) async {
+    final response = await DioUtils().put(
+        "moonblink/api/v1/admin/payment/$paymentId",
+        queryParameters: {'verify': status});
+    return Payment.fromJson(response.data);
   }
 
   // //User List
