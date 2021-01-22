@@ -110,8 +110,8 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     }
   }
 
-  void changeStatusOfPayment(int paymentId, int status) {
-    MoonblinkRepository.changePaymentStatus(paymentId, status).then(
+  void changeStatusOfPayment(int paymentId, String note, int status) {
+    MoonblinkRepository.changePaymentStatus(paymentId, note, status).then(
         (value) async {
       showToast('Success');
       final current = await paymentsSubject.first;

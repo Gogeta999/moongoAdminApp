@@ -160,38 +160,68 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
   }
 
   _showConfirmDialog(int paymentId, String title) {
-    showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: Text('Confirm $title'),
-            actions: [
-              CupertinoButton(
-                  child: Text('Cancel'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-              CupertinoButton(
-                  child: Text('$title'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    int status = -1;
-                    if (title == enumToString(PaymentStatus.SUCCESS)) {
-                      status = 1;
-                    } else if (title == enumToString(PaymentStatus.REJECT)) {
-                      status = 2;
-                    } else if (title == enumToString(PaymentStatus.REFUND)) {
-                      status = 3;
-                    }
-                    if (status == -1) {
-                      showToast("Wrong Staus");
-                      return;
-                    }
-                    _userPaymentsBloc.changeStatusOfPayment(paymentId, status);
-                  })
-            ],
-          );
-        });
+    int status = -1;
+    if (title == enumToString(PaymentStatus.SUCCESS)) {
+      status = 1;
+    } else if (title == enumToString(PaymentStatus.REJECT)) {
+      status = 2;
+    } else if (title == enumToString(PaymentStatus.REFUND)) {
+      status = 3;
+    }
+    if (status == -1) {
+      showToast("Wrong Staus");
+      return;
+    }
+    if (status == 2) {
+      showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            final _controller = TextEditingController();
+            return CupertinoAlertDialog(
+              title: Text('Confirm $title'),
+              content: CupertinoTextField(
+                controller: _controller,
+                placeholder: 'Add a note',
+              ),
+              actions: [
+                CupertinoButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                CupertinoButton(
+                    child: Text('$title'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _userPaymentsBloc.changeStatusOfPayment(
+                          paymentId, _controller.text, status);
+                    })
+              ],
+            );
+          });
+    } else {
+      showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            return CupertinoAlertDialog(
+              title: Text('Confirm $title'),
+              actions: [
+                CupertinoButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                CupertinoButton(
+                    child: Text('$title'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _userPaymentsBloc.changeStatusOfPayment(
+                          paymentId, "", status);
+                    })
+              ],
+            );
+          });
+    }
   }
 
   String enumToString(PaymentStatus paymentStatus) {
@@ -312,10 +342,31 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                                             }),
                                         Text(
                                             'Product -> Coins -${item.item.mbCoin}'),
-                                        Text('Value -> ${item.item.value}'),
+                                        Text(
+                                            'Value -> ${item.item.value} ${item.item.currencyCode}'),
                                         getPaymentStatus(item.status),
-                                        Text('CreatedAt -> ${item.createdAt}'),
+                                        () {
+                                          final year =
+                                              DateTime.parse(item.createdAt)
+                                                  .year
+                                                  .toString();
+                                          final month =
+                                              DateTime.parse(item.createdAt)
+                                                  .month
+                                                  .toString()
+                                                  .padLeft(2, '0');
+                                          final day =
+                                              DateTime.parse(item.createdAt)
+                                                  .day
+                                                  .toString()
+                                                  .padLeft(2, '0');
+                                          return Text(
+                                              'CreatedAt -> $year-$month-$day');
+                                        }(),
                                         Text('UpdatedBy -> ${item.updatedBy}'),
+                                        if (item.note != null &&
+                                            item.note.isNotEmpty)
+                                          Text('Note -> ${item.note}'),
                                         Row(
                                           children: [
                                             CupertinoButton(

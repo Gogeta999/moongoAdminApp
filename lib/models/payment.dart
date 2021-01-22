@@ -10,6 +10,7 @@ class Payment extends Equatable {
   final String updatedBy;
   final String createdAt;
   final String updatedAt;
+  final String note;
   final Product item;
 
   Payment.fromJson(Map<String, dynamic> json)
@@ -23,6 +24,7 @@ class Payment extends Equatable {
         updatedBy = json['updated_by'],
         createdAt = json['created_at'],
         updatedAt = json['updated_at'],
+        note = json['note'],
         item = Product.fromJson(json['item']);
 
   @override
