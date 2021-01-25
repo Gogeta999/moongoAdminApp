@@ -14,7 +14,9 @@ class Product extends Equatable {
         description = json['description'],
         currencyCode = json['currency_code'],
         value = json['value'],
-        mbCoin = json['mb_coin'];
+        mbCoin = json['mb_coin'] is String
+            ? int.tryParse(json['mb_coin'])
+            : json['mb_coin'];
 
   @override
   List<Object> get props => [id];

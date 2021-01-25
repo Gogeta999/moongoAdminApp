@@ -28,3 +28,5 @@ const String kSuggestionTableName = 'MoonGoAdminSuggestion';
 const String kSuggestionDevTableName = 'MoonGoAdminDevSuggestion';
 
 enum PaymentStatus { PENDING, SUCCESS, REJECT, REFUND }
+
+const String customProduct = 'custom_topup_coin';

@@ -23,11 +23,11 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     'Refund'
   ];
 
-  final startDateSubject =
-      BehaviorSubject.seeded(Formatter.yyyymmdd(DateTime.now()));
+  final startDateSubject = BehaviorSubject.seeded(
+      Formatter.yyyymmdd(DateTime.now().subtract(Duration(days: 365))));
   final endDateSubject =
       BehaviorSubject.seeded(Formatter.yyyymmdd(DateTime.now()));
-  final statusSubject = BehaviorSubject.seeded(0);
+  final statusSubject = BehaviorSubject.seeded(1);
   final paymentsSubject = BehaviorSubject<List<Payment>>.seeded(null);
   final querySubject = BehaviorSubject.seeded(false);
   final _pageSubject = BehaviorSubject.seeded(1);
@@ -57,7 +57,7 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     UserPaymentsEvent event,
   ) async* {}
 
-  void queryTransaction() async {
+  void queryPayment() async {
     querySubject.add(true);
     final startDate = await startDateSubject.first;
     final endDate = await endDateSubject.first;
@@ -68,7 +68,7 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     MoonblinkRepository.getPayments(startDate, endDate, status, limit, page)
         .then((transactions) {
       paymentsSubject.add(transactions);
-      hasReachedMax.add(false);
+      hasReachedMax.add(transactions.length < limit);
       _pageSubject.add(1);
       querySubject.add(false);
     }, onError: (e) {
@@ -79,7 +79,7 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     });
   }
 
-  void queryTransactionMore() async {
+  void queryPaymentMore() async {
     if (await hasReachedMax.first) return;
     final maxScroll = scrollController.position.maxScrollExtent;
     final currentScroll = scrollController.position.pixels;
@@ -110,9 +110,12 @@ class UserPaymentsBloc extends Bloc<UserPaymentsEvent, UserPaymentsState> {
     }
   }
 
-  void changeStatusOfPayment(int paymentId, String note, int status) {
-    MoonblinkRepository.changePaymentStatus(paymentId, note, status).then(
-        (value) async {
+  void changeStatusOfPayment(
+      int paymentId, String productName, String note, int status,
+      [String mbCoin]) {
+    MoonblinkRepository.changePaymentStatus(
+            paymentId, note ?? "", status, mbCoin ?? "")
+        .then((value) async {
       showToast('Success');
       final current = await paymentsSubject.first;
       for (int i = 0; i < current.length; ++i) {

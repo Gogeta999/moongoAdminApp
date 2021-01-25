@@ -143,10 +143,10 @@ class MoonblinkRepository {
   }
 
   static Future<Payment> changePaymentStatus(
-      int paymentId, String note, int status) async {
+      int paymentId, String note, int status, String mbCoin) async {
     final response = await DioUtils().put(
         "moonblink/api/v1/admin/payment/$paymentId",
-        queryParameters: {'verify': status, 'note': note});
+        queryParameters: {'verify': status, 'note': note, 'mb_coin': mbCoin});
     return Payment.fromJson(response.data);
   }
 

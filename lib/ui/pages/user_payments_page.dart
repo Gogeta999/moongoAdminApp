@@ -1,12 +1,12 @@
 import 'package:MoonGoAdmin/api/bloc_patterns/user_payments/user_payments_bloc.dart';
 import 'package:MoonGoAdmin/models/payment.dart';
-import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/helper/full_screen_image_view.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/formatter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:oktoast/oktoast.dart';
 
@@ -20,6 +20,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
 
   @override
   void initState() {
+    _userPaymentsBloc.queryPayment();
     super.initState();
   }
 
@@ -35,8 +36,6 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
-          Text('Transaction',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -145,13 +144,15 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
               builder: (context, snapshot) {
                 if (snapshot.data) {
                   return CupertinoButton(
+                    padding: EdgeInsets.zero,
                     child: CupertinoActivityIndicator(),
                     onPressed: () {},
                   );
                 }
                 return CupertinoButton(
-                  child: Text('Query Transaction'),
-                  onPressed: () => _userPaymentsBloc.queryTransaction(),
+                  padding: EdgeInsets.zero,
+                  child: Text('Query Payments'),
+                  onPressed: () => _userPaymentsBloc.queryPayment(),
                 );
               })
         ],
@@ -159,7 +160,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
     );
   }
 
-  _showConfirmDialog(int paymentId, String title) {
+  _showConfirmDialog(int paymentId, String productName, String title) {
     int status = -1;
     if (title == enumToString(PaymentStatus.SUCCESS)) {
       status = 1;
@@ -172,7 +173,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
       showToast("Wrong Staus");
       return;
     }
-    if (status == 2) {
+    if (status == 1 && productName == customProduct) {
       showCupertinoDialog(
           context: context,
           builder: (context) {
@@ -181,7 +182,10 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
               title: Text('Confirm $title'),
               content: CupertinoTextField(
                 controller: _controller,
-                placeholder: 'Add a note',
+                placeholder: 'Add coins amount',
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                textInputAction: TextInputAction.done,
               ),
               actions: [
                 CupertinoButton(
@@ -194,7 +198,41 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                     onPressed: () {
                       Navigator.pop(context);
                       _userPaymentsBloc.changeStatusOfPayment(
-                          paymentId, _controller.text, status);
+                        paymentId,
+                        productName,
+                        "",
+                        status,
+                        _controller.text,
+                      );
+                    })
+              ],
+            );
+          });
+    } else if (status == 2) {
+      showCupertinoDialog(
+          context: context,
+          builder: (context) {
+            final _controller = TextEditingController();
+            return CupertinoAlertDialog(
+              title: Text('Confirm $title'),
+              content: CupertinoTextField(
+                controller: _controller,
+                placeholder: 'Add a note',
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+              ),
+              actions: [
+                CupertinoButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                CupertinoButton(
+                    child: Text('$title'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _userPaymentsBloc.changeStatusOfPayment(
+                          paymentId, productName, _controller.text, status);
                     })
               ],
             );
@@ -216,7 +254,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                     onPressed: () {
                       Navigator.pop(context);
                       _userPaymentsBloc.changeStatusOfPayment(
-                          paymentId, "", status);
+                          paymentId, productName, "", status);
                     })
               ],
             );
@@ -259,7 +297,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
             return Card(
                 elevation: 8,
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                child: Center(child: Text('No Transactions')));
+                child: Center(child: Text('No Payments')));
           }
           return Expanded(
             child: Card(
@@ -288,123 +326,140 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                               );
                             }
                             final item = snapshot.data[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 24),
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.blue, width: 1),
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.all(4),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('No: ${index + 1} '),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        fullscreenDialog: true,
+                                        builder: (_) => FullScreenImageView(
+                                            imageUrls: item.transactionImage)));
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.blue, width: 1),
+                                    borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.all(4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        CupertinoButton(
-                                            child: CachedNetworkImage(
-                                                imageUrl: item.transactionImage,
-                                                imageBuilder:
-                                                    (context, provider) {
-                                                  return Container(
-                                                      width: double.infinity,
-                                                      constraints:
-                                                          BoxConstraints(
-                                                        maxHeight:
-                                                            MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .height *
-                                                                0.4,
-                                                      ),
-                                                      child: Image(
-                                                          image: provider,
-                                                          fit: BoxFit.cover));
-                                                },
-                                                placeholder: (_, __) =>
-                                                    CupertinoActivityIndicator(),
-                                                errorWidget: (_, __, ___) =>
-                                                    Icon(Icons.error)),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                  context,
-                                                  CupertinoPageRoute(
-                                                      fullscreenDialog: true,
-                                                      builder: (_) =>
-                                                          FullScreenImageView(
-                                                              imageUrl: item
-                                                                  .transactionImage)));
-                                            }),
-                                        Text(
-                                            'Product -> Coins -${item.item.mbCoin}'),
-                                        Text(
-                                            'Value -> ${item.item.value} ${item.item.currencyCode}'),
-                                        getPaymentStatus(item.status),
-                                        () {
-                                          final year =
-                                              DateTime.parse(item.createdAt)
-                                                  .year
-                                                  .toString();
-                                          final month =
-                                              DateTime.parse(item.createdAt)
-                                                  .month
-                                                  .toString()
-                                                  .padLeft(2, '0');
-                                          final day =
-                                              DateTime.parse(item.createdAt)
-                                                  .day
-                                                  .toString()
-                                                  .padLeft(2, '0');
-                                          return Text(
-                                              'CreatedAt -> $year-$month-$day');
-                                        }(),
-                                        Text('UpdatedBy -> ${item.updatedBy}'),
-                                        if (item.note != null &&
-                                            item.note.isNotEmpty)
-                                          Text('Note -> ${item.note}'),
-                                        Row(
-                                          children: [
-                                            CupertinoButton(
-                                              child: Text(enumToString(
-                                                  PaymentStatus.SUCCESS)),
-                                              onPressed: () {
-                                                _showConfirmDialog(
-                                                    item.id,
-                                                    enumToString(
-                                                        PaymentStatus.SUCCESS));
-                                              },
-                                            ),
-                                            CupertinoButton(
-                                              child: Text(enumToString(
-                                                  PaymentStatus.REJECT)),
-                                              onPressed: () {
-                                                _showConfirmDialog(
-                                                    item.id,
-                                                    enumToString(
-                                                        PaymentStatus.REJECT));
-                                              },
-                                            ),
-                                            CupertinoButton(
-                                              child: Text(enumToString(
-                                                  PaymentStatus.REFUND)),
-                                              onPressed: () {
-                                                _showConfirmDialog(
-                                                    item.id,
-                                                    enumToString(
-                                                        PaymentStatus.REFUND));
-                                              },
-                                            ),
-                                          ],
+                                        CachedNetworkImage(
+                                          imageUrl: item.userProfileImage,
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  CircleAvatar(
+                                            backgroundColor: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            backgroundImage: imageProvider,
+                                          ),
+                                          placeholder: (context, url) =>
+                                              CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(item.username),
                                         )
                                       ],
                                     ),
-                                  )
-                                ],
+                                    () {
+                                      if (item.item.name == customProduct) {
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text('No: ${index + 1} '),
+                                            Text('Product -> Custom Product'),
+                                            Text(
+                                                'Transfer Amount -> ${item.transferAmount}'),
+                                            Text(
+                                                'Description -> ${item.description}'),
+                                            getPaymentStatus(item.status),
+                                            Text('CreatedAt -> ' +
+                                                Formatter.yyyymmdd(
+                                                    DateTime.parse(
+                                                        item.createdAt))),
+                                            Text(
+                                                'UpdatedBy -> ${item.updatedBy}'),
+                                            if (item.note != null &&
+                                                item.note.isNotEmpty)
+                                              Text('Note -> ${item.note}'),
+                                          ],
+                                        );
+                                      } else {
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text('No: ${index + 1} '),
+                                            Text(
+                                                'Product -> Coins -${item.item.mbCoin}'),
+                                            Text(
+                                                'Value -> ${item.item.value} ${item.item.currencyCode}'),
+                                            getPaymentStatus(item.status),
+                                            Text('CreatedAt -> ' +
+                                                Formatter.yyyymmdd(
+                                                    DateTime.parse(
+                                                        item.createdAt))),
+                                            Text(
+                                                'UpdatedBy -> ${item.updatedBy}'),
+                                            if (item.note != null &&
+                                                item.note.isNotEmpty)
+                                              Text('Note -> ${item.note}'),
+                                          ],
+                                        );
+                                      }
+                                    }(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        CupertinoButton(
+                                          padding: EdgeInsets.zero,
+                                          child: Text(enumToString(
+                                              PaymentStatus.SUCCESS)),
+                                          onPressed: () {
+                                            _showConfirmDialog(
+                                                item.id,
+                                                item.item.name,
+                                                enumToString(
+                                                    PaymentStatus.SUCCESS));
+                                          },
+                                        ),
+                                        CupertinoButton(
+                                          padding: EdgeInsets.zero,
+                                          child: Text(enumToString(
+                                              PaymentStatus.REJECT)),
+                                          onPressed: () {
+                                            _showConfirmDialog(
+                                                item.id,
+                                                item.item.name,
+                                                enumToString(
+                                                    PaymentStatus.REJECT));
+                                          },
+                                        ),
+                                        CupertinoButton(
+                                          padding: EdgeInsets.zero,
+                                          child: Text(enumToString(
+                                              PaymentStatus.REFUND)),
+                                          onPressed: () {
+                                            _showConfirmDialog(
+                                                item.id,
+                                                item.item.name,
+                                                enumToString(
+                                                    PaymentStatus.REFUND));
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -412,8 +467,8 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                               ? snapshot.data.length + 1
                               : snapshot.data.length,
                           controller: _userPaymentsBloc.scrollController
-                            ..addListener(() =>
-                                _userPaymentsBloc.queryTransactionMore()));
+                            ..addListener(
+                                () => _userPaymentsBloc.queryPaymentMore()));
                     })),
           );
         });
@@ -425,7 +480,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transaction List'),
+        title: Text('Payment List'),
       ),
       body: Column(
         children: [
