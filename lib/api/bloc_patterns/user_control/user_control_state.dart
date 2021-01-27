@@ -96,3 +96,17 @@ class UserControlRejectUserFailure extends UserControlState {
   @override
   List<Object> get props => [error];
 }
+
+class UserControlUpdateUserVipSuccess extends UserControlState {
+  @override
+  List<Object> get props => [];
+}
+
+class UserControlUpdateUserVipFailure extends UserControlState {
+  final error;
+
+  const UserControlUpdateUserVipFailure(this.error);
+
+  @override
+  List<Object> get props => [error];
+}

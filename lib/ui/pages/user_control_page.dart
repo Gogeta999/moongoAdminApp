@@ -54,6 +54,9 @@ class _UserControlPageState extends State<UserControlPage> {
       case kPro:
         text = '$name\'s partner type is **Pro**';
         break;
+      case kUnverified:
+        text = '$name\'s partner type is **Unverifed**';
+        break;
       default:
         text = 'Unknown User';
         break;
@@ -564,6 +567,61 @@ class _UserControlPageState extends State<UserControlPage> {
         });
   }
 
+  Widget _buildUpdateVip(int vip) {
+    return Card(
+        elevation: 8,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text('Current Vip is **$vip**'),
+              StreamBuilder<bool>(
+                  initialData: false,
+                  stream: _userControlBloc.updateVipButtonSubject,
+                  builder: (context, snapshot) {
+                    if (snapshot.data) {
+                      return CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: CupertinoActivityIndicator(),
+                        onPressed: () {},
+                      );
+                    }
+                    return CupertinoButton(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text('Update Vip'),
+                      onPressed: () {
+                        _userControlBloc.add(UserControlUpdateUserVip());
+                      },
+                    );
+                  }),
+              StreamBuilder<String>(
+                  initialData: _userControlBloc.vipTypes.first,
+                  stream: _userControlBloc.selectedVipTypeSubect,
+                  builder: (context, snapshot) {
+                    return DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: snapshot.data,
+                        icon: Icon(Icons.keyboard_arrow_down),
+                        onChanged: (String newValue) {
+                          _userControlBloc.selectedVipTypeSubect.add(newValue);
+                        },
+                        items: _userControlBloc.vipTypes
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value, textAlign: TextAlign.center),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }),
+            ],
+          ),
+        ));
+  }
+
   Widget get _blankSpace => SizedBox(height: 10);
 
   @override
@@ -652,6 +710,8 @@ class _UserControlPageState extends State<UserControlPage> {
                     if (state.data.type != 0)
                       _buildUpdatePartnerType(state.data.type),
                     if (state.data.isPending == 1) _buildManagePartnerType(),
+                    if (state.data.type == 0 || state.data.type == 5)
+                      _buildUpdateVip(state.data.vip),
                     _blankSpace,
                     _buildUserTransaction(),
                     _blankSpace,

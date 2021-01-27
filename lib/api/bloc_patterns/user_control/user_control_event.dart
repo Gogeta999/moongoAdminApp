@@ -37,3 +37,8 @@ class UserControlRejectUser extends UserControlEvent {
   @override
   List<Object> get props => [];
 }
+
+class UserControlUpdateUserVip extends UserControlEvent {
+  @override
+  List<Object> get props => [];
+}

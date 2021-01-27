@@ -53,8 +53,11 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     'Booking'
   ];
 
-  final selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
+  final List<String> vipTypes = <String>['Vip 0', 'Vip 1', 'Vip 2', 'Vip 3'];
 
+  final selectedUserTypeSubject = BehaviorSubject.seeded('CoPlayer');
+  final selectedVipTypeSubect = BehaviorSubject.seeded('Vip 0');
+  final updateVipButtonSubject = BehaviorSubject.seeded(false);
   final updateSubject = BehaviorSubject.seeded(false);
   final rejectSubject = BehaviorSubject.seeded(false);
   final startDateSubject =
@@ -76,25 +79,24 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
   final TextEditingController rejectCommentController = TextEditingController();
 
   void dispose() {
-    List<Future> futures = [
-      changePartnerButtonSubject.close(),
-      productIdOrAmountSubject.close(),
-      topUpSubject.close(),
-      withdrawSubject.close(),
-      selectedProductSubject.close(),
-      selectedUserTypeSubject.close(),
-      updateSubject.close(),
-      rejectSubject.close(),
-      startDateSubject.close(),
-      endDateSubject.close(),
-      transactionsSubject.close(),
-      typeSubject.close(),
-      querySubject.close(),
-      _pageSubject.close(),
-      hasReachedMax.close(),
-    ];
+    changePartnerButtonSubject.close();
+    productIdOrAmountSubject.close();
+    topUpSubject.close();
+    withdrawSubject.close();
+    selectedProductSubject.close();
+    selectedUserTypeSubject.close();
+    selectedVipTypeSubect.close();
+    updateSubject.close();
+    rejectSubject.close();
+    startDateSubject.close();
+    endDateSubject.close();
+    transactionsSubject.close();
+    updateVipButtonSubject.close();
+    typeSubject.close();
+    querySubject.close();
+    _pageSubject.close();
+    hasReachedMax.close();
     _debounce?.cancel();
-    Future.wait(futures);
     topUpAmountController.dispose();
     rejectCommentController.dispose();
     withdrawAmountController.dispose();
@@ -118,6 +120,8 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
       yield* _mapAcceptUserToState(currentState);
     if (event is UserControlRejectUser)
       yield* _mapRejectUserToState(currentState);
+    if (event is UserControlUpdateUserVip)
+      yield* _mapUpdateUserVipToState(currentState);
   }
 
   ///Event to state transformers
@@ -276,6 +280,29 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
       } catch (e) {
         yield UserControlRejectUserFailure(e);
         rejectSubject.add(false);
+      }
+    }
+  }
+
+  Stream<UserControlState> _mapUpdateUserVipToState(
+      UserControlState currentState) async* {
+    if (currentState is UserControlFetchedSuccess) {
+      updateVipButtonSubject.add(true);
+      final selectedVip = vipTypes.indexOf(await selectedVipTypeSubect.first);
+      try {
+        await MoonblinkRepository.updateUserVip(userId, selectedVip);
+        yield UserControlUpdateUserVipSuccess();
+        try {
+          User data = await MoonblinkRepository.userdetail(userId);
+          updateVipButtonSubject.add(false);
+          yield UserControlFetchedSuccess(data);
+        } catch (e) {
+          updateVipButtonSubject.add(false);
+          yield UserControlFetchedFailure(e);
+        }
+      } catch (e) {
+        yield UserControlUpdateUserVipFailure(e);
+        updateVipButtonSubject.add(false);
       }
     }
   }

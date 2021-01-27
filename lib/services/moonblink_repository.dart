@@ -150,6 +150,14 @@ class MoonblinkRepository {
     return Payment.fromJson(response.data);
   }
 
+  static Future updateUserVip(int userId, int vip) async {
+    final formData = FormData.fromMap({'type': 5, 'vip': vip});
+    final response = await DioUtils().postwithData(
+        "/moonblink/api/v1/admin/users/$userId/update",
+        data: formData);
+    return response;
+  }
+
   // //User List
   // static Future<List<UsersList>> userlistOld(int limit, int page) async {
   //   var response = await DioUtils().get(Api.Adminuserlist);

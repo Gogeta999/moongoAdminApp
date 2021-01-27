@@ -16,6 +16,7 @@ class User {
   int followingcount;
   double rating;
   Profile profile;
+  int vip;
   NRCProfile nrcProfile;
   Coin coin;
   int isPending;
@@ -36,6 +37,7 @@ class User {
         followingcount = json['following_count'],
         rating = json['rating'].toDouble(),
         profile = Profile.fromJson(json['profile']),
+        vip = json['vip'] is String ? int.tryParse(json['vip']) : json['vip'],
         nrcProfile = json['profile_image'] != null
             ? NRCProfile.fromJson(json['profile_image'])
             : null,

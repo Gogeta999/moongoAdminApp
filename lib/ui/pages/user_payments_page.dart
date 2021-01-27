@@ -348,20 +348,25 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
                                   children: [
                                     Row(
                                       children: [
-                                        CachedNetworkImage(
-                                          imageUrl: item.userProfileImage,
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  CircleAvatar(
-                                            backgroundColor: Theme.of(context)
-                                                .scaffoldBackgroundColor,
-                                            backgroundImage: imageProvider,
-                                          ),
-                                          placeholder: (context, url) =>
-                                              CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
-                                        ),
+                                        item.userProfileImage == null
+                                            ? Text("User has no image")
+                                            : CachedNetworkImage(
+                                                imageUrl: item.userProfileImage,
+                                                imageBuilder:
+                                                    (context, imageProvider) =>
+                                                        CircleAvatar(
+                                                  backgroundColor: Theme.of(
+                                                          context)
+                                                      .scaffoldBackgroundColor,
+                                                  backgroundImage:
+                                                      imageProvider,
+                                                ),
+                                                placeholder: (context, url) =>
+                                                    CircularProgressIndicator(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Icon(Icons.error),
+                                              ),
                                         SizedBox(width: 10),
                                         Expanded(
                                           child: Text(item.username),

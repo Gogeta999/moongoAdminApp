@@ -13,6 +13,7 @@ const int kCoPlayer = 1;
 const int kStreamer = 2;
 const int kCele = 3;
 const int kPro = 4;
+const int kUnverified = 5;
 
 const String tAll = '';
 const String tNormal = '0';
