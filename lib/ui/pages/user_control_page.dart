@@ -2,7 +2,9 @@ import 'package:MoonGoAdmin/api/bloc_patterns/user_control/user_control_bloc.dar
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
+import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/utils/formatter.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +38,7 @@ class _UserControlPageState extends State<UserControlPage> {
     super.dispose();
   }
 
-  Widget _buildPartnerType(String name, int type) {
+  Widget _buildPartnerType(String name, int type, int verified) {
     String text = '';
     switch (type) {
       case kNormal:
@@ -56,6 +58,11 @@ class _UserControlPageState extends State<UserControlPage> {
         break;
       case kUnverified:
         text = '$name\'s partner type is **Unverifed**';
+        break;
+      case kWarrior:
+        text = verified == 0
+            ? '$name\'s partner type is **Warrior**'
+            : '$name mark as Warrior User But Not Verified';
         break;
       default:
         text = 'Unknown User';
@@ -128,6 +135,35 @@ class _UserControlPageState extends State<UserControlPage> {
                     ],
                   );
                 }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateToType6Unverified() {
+    return Card(
+      elevation: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            CupertinoButton(
+              child: Text('Update'),
+              onPressed: () async {
+                try {
+                  await MoonblinkRepository.updateUserType(widget.userId, 6);
+                  showToast("Success");
+                  Navigator.pushReplacementNamed(context, RouteName.userControl,
+                      arguments: widget.userId);
+                } catch (e) {
+                  showToast(e.toString());
+                }
+              },
+            ),
+            Text('Mark As Warrior(Not Partner Yet)'),
           ],
         ),
       ),
@@ -701,11 +737,15 @@ class _UserControlPageState extends State<UserControlPage> {
               if (state is UserControlFetchedSuccess) {
                 return ListView(
                   children: [
-                    _buildPartnerType(state.data.name, state.data.type),
+                    _buildPartnerType(
+                        state.data.name, state.data.type, state.data.verified),
                     //_blankSpace,
                     //_buildGoToDetailPage(state.data.id),
+
                     _blankSpace,
                     _buildCoinControl(state.data),
+                    _blankSpace,
+                    if (state.data.type == 0) _buildUpdateToType6Unverified(),
                     _blankSpace,
                     if (state.data.type != 0)
                       _buildUpdatePartnerType(state.data.type),

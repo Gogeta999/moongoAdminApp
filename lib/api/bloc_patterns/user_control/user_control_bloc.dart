@@ -43,7 +43,9 @@ class UserControlBloc extends Bloc<UserControlEvent, UserControlState> {
     'CoPlayer', //1
     'Streamer', //2
     'Cele', //3
-    'Pro' //4
+    'Pro', //4
+    // 'VIP USER(Unverified)', //5
+    // 'Warrior', //6
   ];
 
   final List<String> transactionTypes = <String>[
