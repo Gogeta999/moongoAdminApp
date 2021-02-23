@@ -2,6 +2,7 @@ import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/payment.dart';
+import 'package:MoonGoAdmin/models/post.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
 import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
@@ -55,6 +56,26 @@ class MoonblinkRepository {
       'page': page,
     });
     return UsersList.fromJson(response.data);
+  }
+
+  static Future<List<Post>> getAdminPosts(int limit, int page) async {
+    var response = await DioUtils().get(Api.AdminPost, queryParameters: {
+      'limit': limit,
+      'page': page,
+    });
+    return response.data['data']['data']
+        .map<Post>((e) => Post.fromJson(e))
+        .toList();
+  }
+
+  static Future approvedPosts(int approved, int postId) async {
+    var response = await DioUtils().put(
+      Api.AdminPost + "/$postId",
+      queryParameters: {
+        'is_approve': approved,
+      },
+    );
+    return response.data;
   }
 
   static Future<List<Transaction>> getUserTransactionList(String startDate,

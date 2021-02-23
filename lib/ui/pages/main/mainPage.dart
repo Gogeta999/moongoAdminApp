@@ -1,8 +1,10 @@
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/pages/decryptionPage.dart';
 import 'package:MoonGoAdmin/ui/pages/pendinglistPage.dart';
+import 'package:MoonGoAdmin/ui/pages/pendingpostlist.dart';
 import 'package:MoonGoAdmin/ui/pages/user_payments_page.dart';
 import 'package:MoonGoAdmin/ui/pages/user_transactions_page.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
@@ -26,6 +28,32 @@ class _MainPageState extends State<MainPage> {
   Widget _padding(double height) => SizedBox(
         height: height,
       );
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _initData();
+  // }
+
+  // void _initData() {
+  //   Future.wait([
+  //     _initUserWallet(),
+  //   ], eagerError: true)
+  //       .then((value) {
+  //     setState(() {
+  //       // _isPageLoading = false;
+  //     });
+  //   });
+  // }
+
+  // Future<void> _initUserWallet() async {
+  //   MoonblinkRepository.getAdminPosts(3, 1).then((value) {
+  //     print(value);
+  //   }, onError: (e) {
+  //     print(e);
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,6 +108,14 @@ class _MainPageState extends State<MainPage> {
               CupertinoPageRoute(builder: (context) => PendingListPage()),
             ),
             child: Text('Pending List'),
+          ),
+          _padding(20),
+          CupertinoButton.filled(
+            onPressed: () => Navigator.push(
+              context,
+              CupertinoPageRoute(builder: (context) => PendingPostListPage()),
+            ),
+            child: Text('Pending Posts'),
           ),
           _padding(20),
           CupertinoButton.filled(
