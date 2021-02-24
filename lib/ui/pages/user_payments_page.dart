@@ -218,7 +218,7 @@ class _UserPaymentsPageState extends State<UserPaymentsPage> {
               content: CupertinoTextField(
                 controller: _controller,
                 placeholder: 'Add a note',
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.done,
               ),
               actions: [
