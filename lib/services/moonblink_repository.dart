@@ -57,6 +57,18 @@ class MoonblinkRepository {
     return UsersList.fromJson(response.data);
   }
 
+  static Future<UsersList> getWarriorPendingUserList(
+      int limit, int page, int pending, String gender) async {
+    var response = await DioUtils().get(Api.Admin, queryParameters: {
+      'gender': gender,
+      'is_pending': pending,
+      'limit': limit,
+      'page': page,
+      'type': 6,
+    });
+    return UsersList.fromJson(response.data);
+  }
+
   static Future<List<Transaction>> getUserTransactionList(String startDate,
       String endDate, String type, int userId, int limit, int page) async {
     String fType = type == 'topup' ? 'top_up' : type;
