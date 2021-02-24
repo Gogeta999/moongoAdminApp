@@ -14,6 +14,7 @@ const int kStreamer = 2;
 const int kCele = 3;
 const int kPro = 4;
 const int kUnverified = 5;
+const int kWarrior = 6;
 
 const String tAll = '';
 const String tNormal = '0';
@@ -21,6 +22,7 @@ const String tCoPlayer = '1';
 const String tStreamer = '2';
 const String tCele = '3';
 const String tPro = '4';
+const String tWarrior = '6';
 
 const String isUserOnForeground = 'isUserOnForeground';
 

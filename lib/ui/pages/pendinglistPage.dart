@@ -254,6 +254,9 @@ class _PendingListTileState extends State<PendingListTile> {
       case kPro:
         userType = 'Pro';
         break;
+      case kWarrior:
+        userType = 'Warrior';
+        break;
       default:
         userType = 'Unknown User';
         break;
