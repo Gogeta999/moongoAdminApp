@@ -749,10 +749,13 @@ class _UserControlPageState extends State<UserControlPage> {
                     _blankSpace,
                     if (state.data.type != 0)
                       _buildUpdatePartnerType(state.data.type),
+                    if (state.data.type != 0) _blankSpace,
                     if (state.data.isPending == 1) _buildManagePartnerType(),
+                    if (state.data.isPending == 1) _blankSpace,
                     if (state.data.type == 0 || state.data.type == 5)
                       _buildUpdateVip(state.data.vip),
-                    _blankSpace,
+                    if (state.data.type == 0 || state.data.type == 5)
+                      _blankSpace,
                     _buildUserTransaction(),
                     _blankSpace,
                     _buildTransactionList(),
