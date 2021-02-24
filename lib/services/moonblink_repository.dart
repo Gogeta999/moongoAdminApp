@@ -8,6 +8,7 @@ import 'package:MoonGoAdmin/models/transaction.dart';
 import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
+import 'package:MoonGoAdmin/models/warrior_model.dart';
 import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:dio/dio.dart';
@@ -29,15 +30,25 @@ class MoonblinkRepository {
   ///user wallet
   static Future<Wallet> getUserWallet() async {
     var userId = StorageManager.sharedPreferences.getInt(kUserId);
-    // final userToken = StorageManager.sharedPreferences.getString(token);
-    // print('Token: $userToken');
     var response = await DioUtils().get(Api.UserWallet + '$userId');
     return Wallet.fromJson(response.data['wallet']);
   }
 
+  static Future<List<Warrior>> getWarriorPartners(int limit, int page) async {
+    final userId = StorageManager.sharedPreferences.getInt(kUserId);
+    final response = await DioUtils().get(
+        'moonblink/api/v1/agency/$userId/user',
+        queryParameters: {'limit': limit, 'page': page});
+    return response.data['data'].map<Warrior>((e) {
+      final warrior = Warrior.fromJson(e);
+      warrior.totalCount = response.data['total_count'];
+      return warrior;
+    }).toList();
+  }
+
   static Future<List<SearchUserModel>> search(
       String query, int limit, int page) async {
-    var response = await DioUtils().get(Api.SearchUser,
+    var response = await DioUtils().get(Api.SearchWarrior,
         queryParameters: {'name': query, 'limit': limit, 'page': page});
     List<String> suggestions = [];
     List<int> idList = [];

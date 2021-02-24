@@ -50,7 +50,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("User Detail"),
+        title: Text("Warrior Detail"),
       ),
       body: BlocProvider(
         create: (_) => userDetailBloc,

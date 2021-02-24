@@ -150,7 +150,7 @@ class _SearchUserPageState extends State<SearchUserPage> {
                     SearchUserModel item = state.data[index - 1];
                     return ListTile(
                       onTap: () => Navigator.pushNamed(
-                          context, RouteName.userControl,
+                          context, RouteName.userDetail,
                           arguments: item.id),
                       leading: CachedNetworkImage(
                         imageUrl: item.profileImage,

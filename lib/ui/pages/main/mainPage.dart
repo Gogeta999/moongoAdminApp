@@ -3,10 +3,8 @@ import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
-import 'package:MoonGoAdmin/ui/pages/pendinglistPage.dart';
-import 'package:MoonGoAdmin/ui/pages/user_payments_page.dart';
 import 'package:MoonGoAdmin/ui/pages/user_transactions_page.dart';
-import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
+import 'package:MoonGoAdmin/ui/pages/warrior_partners_page.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +44,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Main'),
+        title: Text('Home'),
         backgroundColor: Colors.lightBlue[100],
       ),
       body: SafeArea(
@@ -62,7 +60,7 @@ class _MainPageState extends State<MainPage> {
           Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent),
-                borderRadius: BorderRadius.circular(15.0)),
+                borderRadius: BorderRadius.circular(10.0)),
             padding: const EdgeInsets.all(20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,7 +76,10 @@ class _MainPageState extends State<MainPage> {
                       if (snapshot.data == null) {
                         return CupertinoActivityIndicator();
                       }
-                      return Text(snapshot.data.value.toString());
+                      return Text(
+                        snapshot.data.value.toString(),
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      );
                     })
               ],
             ),
@@ -87,6 +88,14 @@ class _MainPageState extends State<MainPage> {
           CupertinoButton.filled(
             child: Text('Search Your Warrior Partner'),
             onPressed: () => Navigator.pushNamed(context, RouteName.search),
+          ),
+          _padding(20),
+          CupertinoButton.filled(
+            onPressed: () => Navigator.push(
+              context,
+              CupertinoPageRoute(builder: (context) => WarriorPartnersPage()),
+            ),
+            child: Text('Your Warrior Partners'),
           ),
           _padding(20),
           CupertinoButton.filled(

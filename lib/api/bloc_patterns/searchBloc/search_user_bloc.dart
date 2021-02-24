@@ -7,7 +7,6 @@ import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:rxdart/rxdart.dart';
 
 part 'search_user_event.dart';
 part 'search_user_state.dart';
@@ -31,7 +30,8 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
       yield* _mapSearchedToState(currentState, event.query);
     if (event is SearchUserSearchedMore)
       yield* _mapSearchedMoreToState(currentState);
-    if (event is SearchUserSuggestions) yield* _mapSuggestionsToState(event.query);
+    if (event is SearchUserSuggestions)
+      yield* _mapSuggestionsToState(event.query);
   }
 
   Stream<SearchUserState> _mapNotSearchingToState() async* {
@@ -66,14 +66,15 @@ class SearchUserBloc extends Bloc<SearchUserEvent, SearchUserState> {
         yield SearchUserSearchingSuccess(currentState.data + data, nextPage,
             data.length < _initialSearchLimit, query);
       } catch (e) {
-        yield SearchUserSearchingSuccess(currentState.data, currentState.page,
-            true, currentState.query);
+        yield SearchUserSearchingSuccess(
+            currentState.data, currentState.page, true, currentState.query);
       }
     }
   }
 
   Stream<SearchUserState> _mapSuggestionsToState(String like) async* {
-    List<String> suggestions = await MoonGoAdminDB().retrieveSuggestions(like) ?? [];
+    List<String> suggestions =
+        await MoonGoAdminDB().retrieveSuggestions(like) ?? [];
     yield SearchUserSuggestionsSuccess(suggestions);
   }
 

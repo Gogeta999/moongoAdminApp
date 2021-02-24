@@ -146,6 +146,8 @@ class Api {
 
   static const String SearchUser = 'moonblink/api/v1/admin/users/search';
 
+  static const String SearchWarrior = 'moonblink/api/v1/agency/user/search';
+
   static const String UpdateUserType = 'moonblink/api/v1/admin/users';
 
   ///Admin Api
