@@ -277,6 +277,9 @@ class UserListTile extends StatelessWidget {
       case kPro:
         userType = 'Pro';
         break;
+      case kWarrior:
+        userType = 'Warrior';
+        break;
       default:
         userType = 'Unknown User';
         break;

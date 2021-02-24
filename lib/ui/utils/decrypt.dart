@@ -22,7 +22,7 @@ encrypt(int id) {
   // confuseList.insert(6, secondList[1]);
   // confuseList.insert(9, secondList[2]);
 
-  final inputText = confuseList.toString();
+  final inputText = id.toString();
   final key = encryptLib.Key.fromUtf8('32lengthSecretKeyFormoongoAESsys');
   final iv = encryptLib.IV.fromUtf8('16IVforMoonGo782');
 
