@@ -1,14 +1,14 @@
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
-import 'package:MoonGoAdmin/ui/pages/decryptionPage.dart';
+import 'package:MoonGoAdmin/models/wallet_model.dart';
+import 'package:MoonGoAdmin/services/moonblink_repository.dart';
 import 'package:MoonGoAdmin/ui/pages/pendinglistPage.dart';
 import 'package:MoonGoAdmin/ui/pages/user_payments_page.dart';
 import 'package:MoonGoAdmin/ui/pages/user_transactions_page.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
-import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -22,64 +22,71 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final inputText = TextEditingController();
   BehaviorSubject<bool> _logoutButton = BehaviorSubject.seeded(false);
+  BehaviorSubject<Wallet> _userWallet = BehaviorSubject();
 
   Widget _padding(double height) => SizedBox(
         height: height,
       );
+
+  @override
+  void initState() {
+    MoonblinkRepository.getUserWallet().then((value) => _userWallet.add(value),
+        onError: (e) => _userWallet.addError(e));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _logoutButton.close();
+    _userWallet.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Main'),
         backgroundColor: Colors.lightBlue[100],
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => Navigator.pushNamed(context, RouteName.search),
-          )
-        ],
       ),
       body: SafeArea(
         child: ListView(padding: EdgeInsets.all(16), children: [
-          CupertinoTextField(
-            maxLines: null,
-            minLines: null,
-            expands: true,
-            controller: inputText,
-            placeholder: 'Input Encrypted Code Here',
-            autocorrect: false,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (value) => _onTapDecrypt(),
-            clearButtonMode: OverlayVisibilityMode.always,
-            // onEditingComplete: () {
-            //   var userId = decrypt(inputText.text);
-            //   print(userId.substring(9, 12));
-            //   inputText.text =
-            //       'Index number 3 Between 8 and o,Sometimes Toast will wrong if userID is more than 5 integers\n$userId ';
-            //   var _id = userId.substring(9, 13);
-            //   showToast('User ID is: ' '$_id');
-            // },
-          ),
-          _padding(20),
-          CupertinoButton.filled(
-            onPressed: () => _onTapDecrypt(),
-            child: Text("Decrypt ID, Paste Correctly"),
-          ),
-          _padding(20),
-          CupertinoButton.filled(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserListPage()),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(
+              'Welcome, ${StorageManager.sharedPreferences.getString(kUserName)}',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            child: Text("User List"),
+          ),
+          _padding(10),
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueAccent),
+                borderRadius: BorderRadius.circular(15.0)),
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Total Coins'),
+                StreamBuilder<Wallet>(
+                    initialData: null,
+                    stream: _userWallet,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error');
+                      }
+                      if (snapshot.data == null) {
+                        return CupertinoActivityIndicator();
+                      }
+                      return Text(snapshot.data.value.toString());
+                    })
+              ],
+            ),
           ),
           _padding(20),
           CupertinoButton.filled(
-            onPressed: () => Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => PendingListPage()),
-            ),
-            child: Text('Pending List'),
+            child: Text('Search Your Warrior Partner'),
+            onPressed: () => Navigator.pushNamed(context, RouteName.search),
           ),
           _padding(20),
           CupertinoButton.filled(
@@ -88,14 +95,6 @@ class _MainPageState extends State<MainPage> {
               CupertinoPageRoute(builder: (context) => UserTransactionsPage()),
             ),
             child: Text('Transaction List'),
-          ),
-          _padding(20),
-          CupertinoButton.filled(
-            onPressed: () => Navigator.push(
-              context,
-              CupertinoPageRoute(builder: (context) => UserPaymentsPage()),
-            ),
-            child: Text('Payment List'),
           ),
           _padding(200),
           StreamBuilder<bool>(
@@ -120,6 +119,12 @@ class _MainPageState extends State<MainPage> {
 
   _logout() async {
     await StorageManager.sharedPreferences.remove(token);
+    await StorageManager.sharedPreferences.remove(kUserId);
+    await StorageManager.sharedPreferences.remove(kUserName);
+    await StorageManager.sharedPreferences.remove(kUserEmail);
+    await StorageManager.sharedPreferences.remove(kUserType);
+    await StorageManager.sharedPreferences.remove(kProfileImage);
+    await StorageManager.sharedPreferences.remove(kCoverImage);
     DioUtils().initWithoutAuthorization();
     _logoutButton.add(false);
     Navigator.pushNamedAndRemoveUntil(

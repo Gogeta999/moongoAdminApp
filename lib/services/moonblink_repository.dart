@@ -1,5 +1,6 @@
 import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
+import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/payment.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
@@ -8,6 +9,7 @@ import 'package:MoonGoAdmin/models/user_model.dart';
 import 'package:MoonGoAdmin/models/userlist_model.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
 import 'package:MoonGoAdmin/services/moongo_admin_database.dart';
+import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:dio/dio.dart';
 
 class MoonblinkRepository {
@@ -16,6 +18,21 @@ class MoonblinkRepository {
     var response =
         await DioUtils().postwithData(Api.AdminLogin, data: formData);
     return LoginModel.fromJson(response.data);
+  }
+
+  static Future<LoginModel> normalLogin(Map<String, dynamic> data) async {
+    FormData formData = FormData.fromMap(data);
+    var response = await DioUtils().postwithData(Api.LOGIN, data: formData);
+    return LoginModel.fromJson(response.data);
+  }
+
+  ///user wallet
+  static Future<Wallet> getUserWallet() async {
+    var userId = StorageManager.sharedPreferences.getInt(kUserId);
+    // final userToken = StorageManager.sharedPreferences.getString(token);
+    // print('Token: $userToken');
+    var response = await DioUtils().get(Api.UserWallet + '$userId');
+    return Wallet.fromJson(response.data['wallet']);
   }
 
   static Future<List<SearchUserModel>> search(

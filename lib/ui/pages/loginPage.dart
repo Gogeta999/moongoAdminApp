@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: MediaQuery.of(context).size.height * 0.35,
                   child: Center(
                       child: Text(
-                    'MoonGo Admin\nLogin',
+                    'Warrior Agency\nLogin',
                     style: Theme.of(context).textTheme.headline4,
                     textAlign: TextAlign.center,
                   )),

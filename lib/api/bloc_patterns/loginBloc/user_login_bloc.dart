@@ -28,9 +28,22 @@ class UserLoginBloc extends Bloc<UserLoginEvent, UserLoginState> {
       Map<String, dynamic> map = {
         'mail': event.mail,
         'password': event.password,
+        'fcm_token': 'DEFAULT_FCM_TOKEN_FOR_AGENCY'
       };
-      LoginModel _loginModel = await MoonblinkRepository.login(map);
-      await StorageManager.sharedPreferences.setString(token, _loginModel.token);
+      LoginModel _loginModel = await MoonblinkRepository.normalLogin(map);
+      await StorageManager.sharedPreferences
+          .setString(token, _loginModel.token);
+      await StorageManager.sharedPreferences.setInt(kUserId, _loginModel.id);
+      await StorageManager.sharedPreferences
+          .setString(kUserName, _loginModel.name);
+      await StorageManager.sharedPreferences
+          .setString(kUserEmail, _loginModel.email);
+      await StorageManager.sharedPreferences
+          .setInt(kUserType, _loginModel.type);
+      await StorageManager.sharedPreferences
+          .setString(kProfileImage, _loginModel.profileImage);
+      await StorageManager.sharedPreferences
+          .setString(kCoverImage, _loginModel.coverImage);
       DioUtils().initWithAuthorization();
       yield UserLoginSuccess();
     } catch (e) {

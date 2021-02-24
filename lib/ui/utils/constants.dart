@@ -1,6 +1,12 @@
 const String mUser = 'mUser';
 // save token to pass our server
 const String token = 'token';
+const String kUserId = 'user_id';
+const String kUserName = 'user_name';
+const String kUserEmail = 'user_email';
+const String kUserType = 'user_type';
+const String kProfileImage = 'user_profile_image';
+const String kCoverImage = 'user_cover_image';
 
 const String kSearchHistory = 'searchHistory';
 
