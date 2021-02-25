@@ -1,6 +1,7 @@
 import 'package:MoonGoAdmin/api/moonblink_api.dart';
 import 'package:MoonGoAdmin/api/moonblink_dio.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
+import 'package:MoonGoAdmin/models/agency_transaction.dart';
 import 'package:MoonGoAdmin/models/login_model.dart';
 import 'package:MoonGoAdmin/models/payment.dart';
 import 'package:MoonGoAdmin/models/search_user_model.dart';
@@ -44,6 +45,17 @@ class MoonblinkRepository {
       warrior.totalCount = response.data['total_count'];
       return warrior;
     }).toList();
+  }
+
+  static Future<List<AgencyTransaction>> getAgencyTransactions(
+      int limit, int page) async {
+    final userId = StorageManager.sharedPreferences.getInt(kUserId);
+    final response = await DioUtils().get(
+        'moonblink/api/v1/agency/$userId/transaction',
+        queryParameters: {'limit': limit, 'page': page});
+    return response.data['data']
+        .map<AgencyTransaction>((e) => AgencyTransaction.fromJson(e))
+        .toList();
   }
 
   static Future<List<SearchUserModel>> search(

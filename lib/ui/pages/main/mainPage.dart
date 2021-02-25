@@ -3,6 +3,7 @@ import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/global/storage_manager.dart';
 import 'package:MoonGoAdmin/models/wallet_model.dart';
 import 'package:MoonGoAdmin/services/moonblink_repository.dart';
+import 'package:MoonGoAdmin/ui/pages/agency_transactions_page.dart';
 import 'package:MoonGoAdmin/ui/pages/user_transactions_page.dart';
 import 'package:MoonGoAdmin/ui/pages/warrior_partners_page.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
@@ -101,7 +102,8 @@ class _MainPageState extends State<MainPage> {
           CupertinoButton.filled(
             onPressed: () => Navigator.push(
               context,
-              CupertinoPageRoute(builder: (context) => UserTransactionsPage()),
+              CupertinoPageRoute(
+                  builder: (context) => AgencyTransactionsPage()),
             ),
             child: Text('Transaction List'),
           ),
