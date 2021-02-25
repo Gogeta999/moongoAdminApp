@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:readmore/readmore.dart';
 import 'package:MoonGoAdmin/api/bloc_patterns/pendingPostBloc/pending_post_bloc.dart';
 import 'package:MoonGoAdmin/global/router_manager.dart';
 import 'package:MoonGoAdmin/models/post.dart';
@@ -231,11 +232,15 @@ class _PendingListTileState extends State<PendingListTile> {
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
               child: InkWell(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ImageView(widget.data.media[0])));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ImageView(widget.data.profile.profileimage),
+                    ),
+                  );
                 },
                 child: CachedNetworkImage(
-                  imageUrl: widget.data.media[0],
+                  imageUrl: widget.data.profile.profileimage,
                   imageBuilder: (context, imageProvider) => CircleAvatar(
                     radius: 24,
                     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -250,7 +255,7 @@ class _PendingListTileState extends State<PendingListTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.data.userid.toString(),
+                  widget.data.profile.username,
                 ),
                 // Text(
                 //     'User type is ${widget.data.userid}\n ID is ${widget.data.id}'),
@@ -258,6 +263,22 @@ class _PendingListTileState extends State<PendingListTile> {
             ),
           ],
         ),
+        if (widget.data.body.isNotEmpty) SizedBox(height: 5),
+        if (widget.data.body.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(left: 16),
+            alignment: Alignment.centerLeft,
+            child: ReadMoreText(
+              widget.data.body,
+              style: Theme.of(context).textTheme.subtitle1,
+              trimLines: 3,
+              colorClickableText: Theme.of(context).accentColor,
+              trimMode: TrimMode.Line,
+              trimCollapsedText: "Read More",
+              trimExpandedText: "Read Less",
+            ),
+          ),
+        SizedBox(height: 5),
         Stack(
           children: [
             StreamBuilder<double>(

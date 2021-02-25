@@ -29,30 +29,30 @@ class _MainPageState extends State<MainPage> {
         height: height,
       );
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _initData();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _initData();
+  }
 
-  // void _initData() {
-  //   Future.wait([
-  //     _initUserWallet(),
-  //   ], eagerError: true)
-  //       .then((value) {
-  //     setState(() {
-  //       // _isPageLoading = false;
-  //     });
-  //   });
-  // }
+  void _initData() {
+    Future.wait([
+      _initUserWallet(),
+    ], eagerError: true)
+        .then((value) {
+      setState(() {
+        // _isPageLoading = false;
+      });
+    });
+  }
 
-  // Future<void> _initUserWallet() async {
-  //   MoonblinkRepository.getAdminPosts(3, 1).then((value) {
-  //     print(value);
-  //   }, onError: (e) {
-  //     print(e);
-  //   });
-  // }
+  Future<void> _initUserWallet() async {
+    MoonblinkRepository.getAdminPosts(3, 1).then((value) {
+      print(value);
+    }, onError: (e) {
+      print(e);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
