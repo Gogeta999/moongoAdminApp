@@ -40,6 +40,7 @@ dependencies:
   flutter_datetime_picker: ^1.4.0
   visibility_detector: ^0.1.5
   cached_video_player: ^1.0.3
+  readmore: ^1.0.1
 
 dev_dependencies:
   flutter_test:
