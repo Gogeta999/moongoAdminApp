@@ -88,12 +88,12 @@ class _WarriorPendingListPageState extends State<WarriorPendingListPage> {
           title: BlocBuilder<WarriorPendingListBloc, PendingListState>(
             builder: (context, state) {
               if (state is PendingListInit) {
-                return Text('Pending List');
+                return Text('Warrior Pending List');
               }
               if (state is PendingListFail) {
                 return Column(
                   children: [
-                    Text('Pending List'),
+                    Text('Warrior Pending List'),
                     Text('Total: UNKNOWN'),
                   ],
                 );
@@ -101,7 +101,7 @@ class _WarriorPendingListPageState extends State<WarriorPendingListPage> {
               if (state is PendingListSuccess) {
                 return Column(
                   children: [
-                    Text('Pending List'),
+                    Text('Warrior Pending List'),
                     Text('Total: ${state.totalCount}',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))
@@ -309,27 +309,27 @@ class _PendingListTileState extends State<PendingListTile> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                StreamBuilder<String>(
-                    initialData: _userTypes.first,
-                    stream: _selectedUserTypeSubject,
-                    builder: (context, snapshot) {
-                      return DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: snapshot.data,
-                          icon: Icon(Icons.keyboard_arrow_down),
-                          onChanged: (String newValue) {
-                            _selectedUserTypeSubject.add(newValue);
-                          },
-                          items: _userTypes
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value, textAlign: TextAlign.center),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    }),
+                // StreamBuilder<String>(
+                //     initialData: _userTypes.first,
+                //     stream: _selectedUserTypeSubject,
+                //     builder: (context, snapshot) {
+                //       return DropdownButtonHideUnderline(
+                //         child: DropdownButton<String>(
+                //           value: snapshot.data,
+                //           icon: Icon(Icons.keyboard_arrow_down),
+                //           onChanged: (String newValue) {
+                //             _selectedUserTypeSubject.add(newValue);
+                //           },
+                //           items: _userTypes
+                //               .map<DropdownMenuItem<String>>((String value) {
+                //             return DropdownMenuItem<String>(
+                //               value: value,
+                //               child: Text(value, textAlign: TextAlign.center),
+                //             );
+                //           }).toList(),
+                //         ),
+                //       );
+                //     }),
                 Row(
                   children: [
                     // CupertinoButton(child: Text(''), onPressed: null)
@@ -381,12 +381,15 @@ class _PendingListTileState extends State<PendingListTile> {
     final String userTypeName = await _selectedUserTypeSubject.first;
     final int userType = _userTypes.indexOf(userTypeName) + 1;
     try {
-      await MoonblinkRepository.updateUserType(widget.data.id, userType);
+      await MoonblinkRepository.acceptPendingUser(widget.data.id);
+      // await MoonblinkRepository.updateUserType(widget.data.id, userType);
       BlocProvider.of<WarriorPendingListBloc>(context)
           .add(PendingListRemoveUser(widget.index));
       _updateSubject.add(false);
     } catch (e) {
       showToast(e.toString());
+      print('=====================Error Resopnse===================');
+      print(e.toString());
       _updateSubject.add(false);
     }
   }

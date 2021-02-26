@@ -38,13 +38,13 @@ class DioUtils {
   static final DioUtils _instance = DioUtils._();
   factory DioUtils() => _instance;
   BaseOptions _baseOptions = BaseOptions(
-    baseUrl: baseUrl,
+    baseUrl: devUrl,
     connectTimeout: 10 * 1000,
     receiveTimeout: 8 * 1000,
     headers: {
       //Default necessary header
       //MoonBlink AppKey
-      'app-key': baseAppKey
+      'app-key': devAppKey
     },
     contentType: Headers.formUrlEncodedContentType,
     responseType: ResponseType.json,
@@ -412,7 +412,7 @@ class DioUtils {
   /*
    * Cancel Request
    *
-  * The same cancel token can be used for multiple requests. When a cancel token is canceled, all requests using the cancel token will be canceled. 
+  * The same cancel token can be used for multiple requests. When a cancel token is canceled, all requests using the cancel token will be canceled.
   * So the parameters are optional
    */
   void cancelRequests(CancelToken token) {
