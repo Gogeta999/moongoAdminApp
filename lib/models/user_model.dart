@@ -26,7 +26,7 @@ class User {
         name = json['name'],
         lastname = json['last_name'],
         email = json['email'],
-        verified = json['verifited'],
+        verified = json['verified'],
         verifiedat = json['verified_at'],
         type = json['type'],
         status = json['status'],

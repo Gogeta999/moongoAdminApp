@@ -90,12 +90,12 @@ class _PendingPostListPageState extends State<PendingPostListPage> {
           title: BlocBuilder<PendingPostBloc, PendingPostState>(
             builder: (context, state) {
               if (state is PendingPostInit) {
-                return Text('Pending List');
+                return Text('Pending Post List');
               }
               if (state is PendingPostFail) {
                 return Column(
                   children: [
-                    Text('Pending List'),
+                    Text('Pending Post List'),
                     Text('Total: UNKNOWN'),
                   ],
                 );
@@ -103,7 +103,7 @@ class _PendingPostListPageState extends State<PendingPostListPage> {
               if (state is PendingPostSuccess) {
                 return Column(
                   children: [
-                    Text('Pending List'),
+                    Text('Pending Post List'),
                     // Text('Total: ${state.totalCount}',
                     //     style: TextStyle(
                     //         fontSize: 18, fontWeight: FontWeight.bold))

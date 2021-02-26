@@ -60,7 +60,7 @@ class _UserControlPageState extends State<UserControlPage> {
         text = '$name\'s partner type is **Unverifed**';
         break;
       case kWarrior:
-        text = verified == 0
+        text = verified == 1
             ? '$name\'s partner type is **Warrior**'
             : '$name mark as Warrior User But Not Verified';
         break;
@@ -739,6 +739,7 @@ class _UserControlPageState extends State<UserControlPage> {
                   children: [
                     _buildPartnerType(
                         state.data.name, state.data.type, state.data.verified),
+                    // Text('Verifed Query===' + state.data.verified.toString()),
                     //_blankSpace,
                     //_buildGoToDetailPage(state.data.id),
 

@@ -8,6 +8,7 @@ import 'package:MoonGoAdmin/ui/pages/pendingpostlist.dart';
 import 'package:MoonGoAdmin/ui/pages/user_payments_page.dart';
 import 'package:MoonGoAdmin/ui/pages/user_transactions_page.dart';
 import 'package:MoonGoAdmin/ui/pages/userlistPage.dart';
+import 'package:MoonGoAdmin/ui/pages/warrior_plandinglistPage.dart';
 import 'package:MoonGoAdmin/ui/utils/constants.dart';
 import 'package:MoonGoAdmin/ui/utils/decrypt.dart';
 import 'package:MoonGoAdmin/ui/pages/userdetail.dart';
@@ -116,6 +117,15 @@ class _MainPageState extends State<MainPage> {
               CupertinoPageRoute(builder: (context) => PendingPostListPage()),
             ),
             child: Text('Pending Posts'),
+          ),
+          _padding(20),
+          CupertinoButton.filled(
+            onPressed: () => Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) => WarriorPendingListPage()),
+            ),
+            child: Text('Warrior Pending List'),
           ),
           _padding(20),
           CupertinoButton.filled(

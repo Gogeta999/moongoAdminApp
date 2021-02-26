@@ -58,6 +58,18 @@ class MoonblinkRepository {
     return UsersList.fromJson(response.data);
   }
 
+  static Future<UsersList> getWarriorPendingUserList(
+      int limit, int page, int pending, String gender) async {
+    var response = await DioUtils().get(Api.Admin, queryParameters: {
+      'gender': gender,
+      'is_pending': pending,
+      'limit': limit,
+      'page': page,
+      'type': 6,
+    });
+    return UsersList.fromJson(response.data);
+  }
+
   static Future<List<Post>> getAdminPosts(int limit, int page) async {
     var response = await DioUtils().get(Api.AdminPost, queryParameters: {
       'limit': limit,
@@ -120,6 +132,12 @@ class MoonblinkRepository {
   static Future rejectPendingUser(int userId, String comment) async {
     var response = await DioUtils().put(Api.UpdateUserType + '/$userId',
         queryParameters: {'type_status': 1, 'fcm_message': comment});
+    return response.data;
+  }
+
+  static Future acceptPendingUser(int userId) async {
+    var response = await DioUtils().put(Api.UpdateUserType + '/$userId',
+        queryParameters: {'type_status': 2});
     return response.data;
   }
 
