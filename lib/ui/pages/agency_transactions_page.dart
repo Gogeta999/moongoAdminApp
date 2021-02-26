@@ -117,7 +117,7 @@ class _AgencyTransactionsPageState extends State<AgencyTransactionsPage> {
                         },
                       ),
                       title: Text('${item.warriorName}'),
-                      subtitle: Text('Income to you--'),
+                      subtitle: Text('${item.warriorEmail}'),
                       trailing: Text('${item.amount} Coins'),
                       onTap: () => Navigator.pushNamed(
                           context, RouteName.userDetail,

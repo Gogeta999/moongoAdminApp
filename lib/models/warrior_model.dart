@@ -9,6 +9,7 @@ class Warrior {
   final int status;
   final String createdAt;
   final String updatedAt;
+  final int totalIncomeAmount;
   //under profile
   final String phone;
   final String address;
@@ -31,6 +32,7 @@ class Warrior {
         status = json['status'],
         createdAt = json['created_at'],
         updatedAt = json['updated_at'],
+        totalIncomeAmount = json['total_income_amount'],
         phone = json['profile']['phone'],
         address = json['profile']['address'],
         profileImage = json['profile']['profile_image'],

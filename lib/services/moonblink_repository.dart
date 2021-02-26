@@ -41,8 +41,8 @@ class MoonblinkRepository {
         'moonblink/api/v1/agency/$userId/user',
         queryParameters: {'limit': limit, 'page': page});
     return response.data['data'].map<Warrior>((e) {
-      final warrior = Warrior.fromJson(e);
-      warrior.totalCount = response.data['total_count'];
+      final warrior = Warrior.fromJson(e['warrior']);
+      warrior.totalCount = response.data['total'];
       return warrior;
     }).toList();
   }

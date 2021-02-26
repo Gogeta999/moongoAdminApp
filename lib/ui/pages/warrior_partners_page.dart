@@ -117,8 +117,8 @@ class _WarriorPartnersPageState extends State<WarriorPartnersPage> {
                         },
                       ),
                       title: Text('${item.name}'),
-                      subtitle: Text('${item.email}'),
-                      trailing: Text('${item.gender}'),
+                      subtitle: Text('Total income to you --'),
+                      trailing: Text('${item.totalIncomeAmount} Coins'),
                       onTap: () => Navigator.pushNamed(
                           context, RouteName.userDetail,
                           arguments: item.id),
