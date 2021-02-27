@@ -154,7 +154,8 @@ class _UserControlPageState extends State<UserControlPage> {
               child: Text('Update'),
               onPressed: () async {
                 try {
-                  await MoonblinkRepository.updateUserType(widget.userId, 6);
+                  await MoonblinkRepository.updateToType6Unverified(
+                      widget.userId, 6);
                   showToast("Success");
                   Navigator.pushReplacementNamed(context, RouteName.userControl,
                       arguments: widget.userId);

@@ -135,9 +135,17 @@ class MoonblinkRepository {
     return response.data;
   }
 
-  static Future acceptPendingUser(int userId) async {
+  static Future updateToType6Unverified(int userId, int type) async {
     var response = await DioUtils().put(Api.UpdateUserType + '/$userId',
-        queryParameters: {'type_status': 2});
+        queryParameters: {'type': type, 'agent_id': 32788});
+    return response.data;
+  }
+
+  static Future acceptPendingUser(int userId) async {
+    var response = await DioUtils().put(
+      Api.UpdateUserType + '/$userId',
+      queryParameters: {'type_status': 2, 'agent_id': 32788},
+    );
     return response.data;
   }
 
